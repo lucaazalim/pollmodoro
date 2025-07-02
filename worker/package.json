@@ -1,0 +1,21 @@
+{
+  "name": "poll",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "wrangler d1 migrations apply --env=production poll",
+    "db:migrate:local": "wrangler d1 migrations apply --local poll"
+  },
+  "dependencies": {
+    "@trpc/server": "^11.4.3",
+    "drizzle-orm": "^0.44.2",
+    "nanoid": "^5.1.5",
+    "zod": "^3.25.69"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.4",
+    "wrangler": "^4.22.0"
+  }
+}
