@@ -1,3 +1,4 @@
+import { PUBLIC_BACKEND_TRPC_URL } from '$env/static/public';
 import { createTRPCProxyClient, httpBatchLink } from '@trpc/client';
 import type { AppRouter } from '../../../backend/src/index';
 
@@ -5,9 +6,7 @@ import type { AppRouter } from '../../../backend/src/index';
 export const trpc = createTRPCProxyClient<AppRouter>({
 	links: [
 		httpBatchLink({
-			url: 'http://localhost:8787/trpc', // Update this to your actual worker URL
-			// For production, this would be something like:
-			// url: 'https://your-worker-name.your-subdomain.workers.dev/trpc',
+			url: PUBLIC_BACKEND_TRPC_URL || 'http://localhost:8787/trpc',
 			headers: {
 				'Content-Type': 'application/json'
 			}
