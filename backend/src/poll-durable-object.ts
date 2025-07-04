@@ -4,8 +4,9 @@ import { drizzle, DrizzleSqliteDODatabase } from "drizzle-orm/durable-sqlite";
 import { migrate } from "drizzle-orm/durable-sqlite/migrator";
 import { Env } from ".";
 import migrations from "../drizzle/migrations";
+import { Result } from "./result";
 import { poll, pollOptions, votes } from "./schema";
-import { PollWithOptions, PollWithResults } from "./types";
+import { PollWithOptions, PollWithResults, Vote, VoteInsert } from "./types";
 
 export class PollDurableObject extends DurableObject {
   storage: DurableObjectStorage;
@@ -24,40 +25,54 @@ export class PollDurableObject extends DurableObject {
 
   async createPoll(
     pollInsert: typeof poll.$inferInsert,
-    pollOptionsInsert: (typeof pollOptions.$inferInsert)[],
-  ): Promise<PollWithOptions> {
+    pollOptionsInsert: (typeof pollOptions.$inferInsert)[]
+  ): Promise<Result<PollWithOptions>> {
     const [createdPoll, createdPollOptions] = await Promise.all([
       this.db.insert(poll).values(pollInsert).returning(),
       this.db.insert(pollOptions).values(pollOptionsInsert).returning(),
     ]);
 
     return {
-      ...createdPoll[0],
-      options: createdPollOptions,
+      success: true,
+      data: {
+        ...createdPoll[0],
+        options: createdPollOptions,
+      },
     };
   }
 
-  async selectPoll(): Promise<PollWithOptions | null> {
+  async selectPoll(): Promise<Result<PollWithOptions>> {
     const [pollData, pollOptionsData] = await Promise.all([
       this.db.select().from(poll),
       this.db.select().from(pollOptions),
     ]);
 
     if (!pollData || pollData.length === 0) {
-      return null;
+      return {
+        success: false,
+        message: "Poll not found.",
+        tRPCError: "NOT_FOUND",
+      };
     }
 
     return {
-      ...pollData[0],
-      options: pollOptionsData,
+      success: true,
+      data: {
+        ...pollData[0],
+        options: pollOptionsData,
+      },
     };
   }
 
-  async selectPollWithResults(): Promise<PollWithResults | null> {
+  async selectPollWithResults(): Promise<Result<PollWithResults | null>> {
     const pollData = await this.db.select().from(poll);
 
     if (!pollData || pollData.length === 0) {
-      return null;
+      return {
+        success: false,
+        message: "Poll not found",
+        tRPCError: "NOT_FOUND",
+      };
     }
 
     const optionsWithVotes = await this.db
@@ -71,18 +86,70 @@ export class PollDurableObject extends DurableObject {
 
     const totalVotes = optionsWithVotes.reduce(
       (sum, option) => sum + option.votesCount,
-      0,
+      0
     );
 
     return {
-      ...pollData[0],
-      options: optionsWithVotes,
-      totalVotes,
+      success: true,
+      data: {
+        ...pollData[0],
+        options: optionsWithVotes,
+        totalVotes,
+      },
     };
   }
 
-  async insertVotes(voteInserts: (typeof votes.$inferInsert)[]) {
-    await this.db.insert(votes).values(voteInserts).returning();
+  async insertVotes(voteInserts: VoteInsert[]): Promise<Result<Vote[]>> {
+    const pollWithOptions = await this.selectPoll();
+
+    if (!pollWithOptions.success) {
+      return pollWithOptions;
+    }
+
+    const { closeAt, allowMultipleOptions, options } = pollWithOptions.data;
+
+    // Check if poll is still open
+    if (closeAt && new Date() > closeAt) {
+      return {
+        success: false,
+        message: "Poll is closed",
+        tRPCError: "BAD_REQUEST",
+      };
+    }
+
+    // Check if multiple options are allowed
+    if (!allowMultipleOptions && voteInserts.length > 1) {
+      return {
+        success: false,
+        message: "Multiple options are not allowed for this poll",
+        tRPCError: "BAD_REQUEST",
+      };
+    }
+
+    const availableOptionIds = options.map((option) => option.id);
+
+    // Validate that all voteInserts have valid pollOptionIds
+    if (
+      !voteInserts
+        .map((vote) => vote.pollOptionId)
+        .every((id) => availableOptionIds.includes(id))
+    ) {
+      return {
+        success: false,
+        message: "One or more option IDs are invalid",
+        tRPCError: "BAD_REQUEST",
+      };
+    }
+
+    const insertedVotes = await this.db
+      .insert(votes)
+      .values(voteInserts)
+      .returning();
+
+    return {
+      success: true,
+      data: insertedVotes,
+    };
   }
 
   async _migrate() {

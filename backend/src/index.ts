@@ -1,8 +1,9 @@
-import { initTRPC, TRPCError } from "@trpc/server";
+import { initTRPC } from "@trpc/server";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { PollDurableObject } from "./poll-durable-object";
+import { unwrapResult } from "./result";
 
 // Export the Durable Object class for Wrangler
 export { PollDurableObject };
@@ -29,7 +30,7 @@ const createPollSchema = z.object({
   description: z.string().max(500, "Description too long").optional(),
   options: z
     .array(
-      z.string().min(1, "Option cannot be empty").max(100, "Option too long"),
+      z.string().min(1, "Option cannot be empty").max(100, "Option too long")
     )
     .min(2, "At least 2 options are required")
     .max(10, "Maximum 10 options allowed"),
@@ -56,137 +57,63 @@ const appRouter = router({
   createPoll: procedure
     .input(createPollSchema)
     .mutation(async ({ input, ctx }) => {
-      try {
-        const id = nanoid();
-        const durableObjectId = ctx.env.POLL_DURABLE_OBJECT.idFromName(id);
-        const stub = ctx.env.POLL_DURABLE_OBJECT.get(durableObjectId);
+      const id = nanoid();
+      const durableObjectId = ctx.env.POLL_DURABLE_OBJECT.idFromName(id);
+      const stub = ctx.env.POLL_DURABLE_OBJECT.get(durableObjectId);
 
-        const pollInsertData = {
-          id,
-          title: input.title,
-          description: input.description || null,
-          pollType: input.pollType,
-          allowMultipleOptions: input.allowMultipleOptions,
-          closeAt: input.closeAt ? new Date(input.closeAt) : null,
-        };
+      const pollInsertData = {
+        id,
+        title: input.title,
+        description: input.description || null,
+        pollType: input.pollType,
+        allowMultipleOptions: input.allowMultipleOptions,
+        closeAt: input.closeAt ? new Date(input.closeAt) : null,
+      };
 
-        const pollOptionsInsertData = input.options.map((optionText) => ({
-          optionText: optionText.trim(),
-        }));
+      const pollOptionsInsertData = input.options.map((optionText) => ({
+        optionText: optionText.trim(),
+      }));
 
-        return await stub.createPoll(pollInsertData, pollOptionsInsertData);
-      } catch (error) {
-        console.error("Error creating poll:", error);
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to create poll",
-        });
-      }
+      const createdPoll = await stub.createPoll(
+        pollInsertData,
+        pollOptionsInsertData
+      );
+
+      return unwrapResult(createdPoll);
     }),
 
   // Create vote procedure
   createVote: procedure
     .input(createVoteSchema)
     .mutation(async ({ input, ctx }) => {
-      try {
-        const pollId = input.pollId;
-        const id = ctx.env.POLL_DURABLE_OBJECT.idFromName(pollId);
-        const stub = ctx.env.POLL_DURABLE_OBJECT.get(id);
+      const pollId = input.pollId;
+      const id = ctx.env.POLL_DURABLE_OBJECT.idFromName(pollId);
+      const stub = ctx.env.POLL_DURABLE_OBJECT.get(id);
 
-        // Find the poll by public ID
-        const pollWithOptions = await stub.selectPoll();
+      // Get voter IP
+      const voterIp =
+        ctx.request.headers.get("CF-Connecting-IP") ||
+        ctx.request.headers.get("X-Forwarded-For") ||
+        "unknown";
 
-        if (!pollWithOptions) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Poll not found",
-          });
-        }
+      // Insert votes
+      const voteInserts = input.optionIds.map((optionId) => ({
+        pollOptionId: optionId,
+        voterIp,
+      }));
 
-        // Check if poll is still open
-        if (pollWithOptions.closeAt && new Date() > pollWithOptions.closeAt) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Poll is closed",
-          });
-        }
-
-        // Check if multiple options are allowed
-        if (
-          !pollWithOptions.allowMultipleOptions &&
-          input.optionIds.length > 1
-        ) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Multiple options not allowed for this poll",
-          });
-        }
-
-        const availableOptionIds = pollWithOptions.options.map(
-          (option) => option.id,
-        );
-
-        if (!input.optionIds.every((id) => availableOptionIds.includes(id))) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Invalid option IDs",
-          });
-        }
-
-        // Get voter IP
-        const voterIp =
-          ctx.request.headers.get("CF-Connecting-IP") ||
-          ctx.request.headers.get("X-Forwarded-For") ||
-          "unknown";
-
-        // Insert votes
-        const voteInserts = input.optionIds.map((optionId) => ({
-          pollId: pollWithOptions.id,
-          pollOptionId: optionId,
-          voterIp,
-        }));
-
-        return await stub.insertVotes(voteInserts);
-      } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error;
-        }
-        console.error("Error recording vote:", error);
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to record vote",
-        });
-      }
+      const insertedVotes = await stub.insertVotes(voteInserts);
+      return unwrapResult(insertedVotes);
     }),
 
   // Get poll procedure
   getPoll: procedure.input(getPollSchema).query(async ({ input, ctx }) => {
-    try {
-      const pollId = input.id;
-      const id = ctx.env.POLL_DURABLE_OBJECT.idFromName(pollId);
-      const stub = ctx.env.POLL_DURABLE_OBJECT.get(id);
+    const pollId = input.id;
+    const id = ctx.env.POLL_DURABLE_OBJECT.idFromName(pollId);
+    const stub = ctx.env.POLL_DURABLE_OBJECT.get(id);
 
-      const pollWithResults = await stub.selectPollWithResults();
-
-      if (!pollWithResults) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Poll not found",
-        });
-      }
-
-      console.log(pollWithResults);
-      return pollWithResults;
-    } catch (error) {
-      if (error instanceof TRPCError) {
-        throw error;
-      }
-      console.error("Error fetching poll:", error);
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to fetch poll",
-      });
-    }
+    const pollWithResults = await stub.selectPollWithResults();
+    return unwrapResult(pollWithResults);
   }),
 });
 
