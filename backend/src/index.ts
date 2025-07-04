@@ -29,7 +29,7 @@ const createPollSchema = z.object({
   description: z.string().max(500, "Description too long").optional(),
   options: z
     .array(
-      z.string().min(1, "Option cannot be empty").max(100, "Option too long")
+      z.string().min(1, "Option cannot be empty").max(100, "Option too long"),
     )
     .min(2, "At least 2 options are required")
     .max(10, "Maximum 10 options allowed"),
@@ -123,7 +123,7 @@ const appRouter = router({
         }
 
         const availableOptionIds = pollWithOptions.options.map(
-          (option) => option.id
+          (option) => option.id,
         );
 
         if (!input.optionIds.every((id) => availableOptionIds.includes(id))) {

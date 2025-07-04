@@ -8,36 +8,36 @@
   "main": "src/index.ts",
   "compatibility_date": "2025-06-17",
   "dev": {
-    "port": 8787
+    "port": 8787,
   },
   "assets": {
     "binding": "ASSETS",
-    "directory": "./public"
+    "directory": "./public",
   },
   "observability": {
-    "enabled": true
+    "enabled": true,
   },
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": ["PollDurableObject"]
-    }
+      "new_sqlite_classes": ["PollDurableObject"],
+    },
   ],
   "durable_objects": {
     "bindings": [
       {
         "name": "POLL_DURABLE_OBJECT",
-        "class_name": "PollDurableObject"
-      }
-    ]
+        "class_name": "PollDurableObject",
+      },
+    ],
   },
   "rules": [
     {
       "type": "Text",
       "globs": ["**/*.sql"],
-      "fallthrough": true
-    }
-  ]
+      "fallthrough": true,
+    },
+  ],
   /**
    * Smart Placement
    * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

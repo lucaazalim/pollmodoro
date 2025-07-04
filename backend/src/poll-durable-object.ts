@@ -24,7 +24,7 @@ export class PollDurableObject extends DurableObject {
 
   async createPoll(
     pollInsert: typeof poll.$inferInsert,
-    pollOptionsInsert: (typeof pollOptions.$inferInsert)[]
+    pollOptionsInsert: (typeof pollOptions.$inferInsert)[],
   ): Promise<PollWithOptions> {
     const [createdPoll, createdPollOptions] = await Promise.all([
       this.db.insert(poll).values(pollInsert).returning(),
@@ -71,7 +71,7 @@ export class PollDurableObject extends DurableObject {
 
     const totalVotes = optionsWithVotes.reduce(
       (sum, option) => sum + option.votesCount,
-      0
+      0,
     );
 
     return {
