@@ -130,6 +130,30 @@ const createContext = (env: Env, request: Request): Context => ({
 // Export default function to handle requests
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    const url = new URL(request.url);
+
+    // Handle WebSocket upgrade requests
+    if (url.pathname.endsWith("/websocket")) {
+      const upgradeHeader = request.headers.get("Upgrade");
+
+      if (!upgradeHeader || upgradeHeader !== "websocket") {
+        return new Response("Durable Object expected Upgrade: websocket", {
+          status: 426,
+        });
+      }
+
+      const pollId = url.searchParams.get("pollId");
+
+      if (!pollId) {
+        return new Response("Poll-Id header is required", { status: 400 });
+      }
+
+      const durableObjectId = env.POLL_DURABLE_OBJECT.idFromName(pollId);
+      const stub = env.POLL_DURABLE_OBJECT.get(durableObjectId);
+
+      return stub.fetch(request);
+    }
+
     // Handle CORS preflight requests
     if (request.method === "OPTIONS") {
       return new Response(null, {

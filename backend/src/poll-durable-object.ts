@@ -6,17 +6,26 @@ import { Env } from ".";
 import migrations from "../drizzle/migrations";
 import { Result } from "./result";
 import { poll, pollOptions, votes } from "./schema";
-import { PollWithOptions, PollWithResults, Vote, VoteInsert } from "./types";
+import {
+  PollWithOptions,
+  PollWithResults,
+  Vote,
+  VoteInsert,
+  WebSocketMessage,
+} from "./types";
 
 export class PollDurableObject extends DurableObject {
   storage: DurableObjectStorage;
   db: DrizzleSqliteDODatabase<any>;
+
+  currentlyConnectedWebSockets: WebSocket[];
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
 
     this.storage = this.ctx.storage;
     this.db = drizzle(this.storage, { logger: false });
+    this.currentlyConnectedWebSockets = [];
 
     ctx.blockConcurrencyWhile(async () => {
       await this._migrate();
@@ -146,10 +155,45 @@ export class PollDurableObject extends DurableObject {
       .values(voteInserts)
       .returning();
 
+    this.currentlyConnectedWebSockets.forEach((ws) => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(
+          JSON.stringify({
+            type: "newVote",
+            data: insertedVotes,
+          } satisfies WebSocketMessage<Vote[]>)
+        );
+      }
+    });
+
     return {
       success: true,
       data: insertedVotes,
     };
+  }
+
+  async fetch(request: Request): Promise<Response> {
+    // Creates two ends of a WebSocket connection.
+    const webSocketPair = new WebSocketPair();
+    const [client, server] = Object.values(webSocketPair);
+
+    // Calling `accept()` tells the runtime that this WebSocket is to begin terminating
+    // request within the Durable Object. It has the effect of "accepting" the connection,
+    // and allowing the WebSocket to send and receive messages.
+    this.ctx.acceptWebSocket(server);
+    this.currentlyConnectedWebSockets.push(client);
+
+    // If the client closes the connection, the runtime will close the connection too.
+    server.addEventListener("close", (cls: CloseEvent) => {
+      this.currentlyConnectedWebSockets =
+        this.currentlyConnectedWebSockets.filter((ws) => ws !== client);
+      server.close(cls.code, "Durable Object is closing WebSocket");
+    });
+
+    return new Response(null, {
+      status: 101,
+      webSocket: client,
+    });
   }
 
   async _migrate() {

@@ -1,5 +1,10 @@
 import { poll, pollOptions, votes } from "./schema";
 
+export type WebSocketMessage<T> = {
+  type: "newVote";
+  data: T;
+};
+
 export type Poll = typeof poll.$inferSelect;
 export type PollInsert = typeof poll.$inferInsert;
 export type PollOption = typeof pollOptions.$inferSelect;
