@@ -1,5 +1,20 @@
 <script lang="ts">
 	// Modern landing page focused on features and benefits
+	import {
+		BarChart3,
+		BookOpen,
+		Calendar,
+		CheckSquare,
+		GraduationCap,
+		Heart,
+		MessageCircle,
+		Settings,
+		Share2,
+		Shield,
+		TrendingUp,
+		Users,
+		Zap
+	} from '@lucide/svelte';
 </script>
 
 <svelte:head>
@@ -39,14 +54,7 @@
 				<div
 					class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-100"
 				>
-					<svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M13 10V3L4 14h7v7l9-11h-7z"
-						/>
-					</svg>
+					<Zap class="size-8 text-blue-600" />
 				</div>
 				<h3 class="mb-3 text-xl font-semibold text-gray-900">Lightning Fast Setup</h3>
 				<p class="leading-relaxed text-gray-600">
@@ -59,14 +67,7 @@
 				<div
 					class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-green-100"
 				>
-					<svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
-						/>
-					</svg>
+					<BarChart3 class="size-8 text-green-600" />
 				</div>
 				<h3 class="mb-3 text-xl font-semibold text-gray-900">Real-Time Analytics</h3>
 				<p class="leading-relaxed text-gray-600">
@@ -79,19 +80,7 @@
 				<div
 					class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-100"
 				>
-					<svg
-						class="h-8 w-8 text-purple-600"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
-						/>
-					</svg>
+					<Share2 class="size-8 text-purple-600" />
 				</div>
 				<h3 class="mb-3 text-xl font-semibold text-gray-900">Universal Sharing</h3>
 				<p class="leading-relaxed text-gray-600">
@@ -110,19 +99,7 @@
 				<div
 					class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-100"
 				>
-					<svg
-						class="h-6 w-6 text-orange-600"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-						/>
-					</svg>
+					<CheckSquare class="h-6 w-6 text-orange-600" />
 				</div>
 				<h4 class="mb-2 font-semibold text-gray-900">Multiple Choice</h4>
 				<p class="text-sm text-gray-600">Single or multiple selections per voter</p>
@@ -130,14 +107,7 @@
 
 			<div class="text-center">
 				<div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-100">
-					<svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-						/>
-					</svg>
+					<Shield class="h-6 w-6 text-red-600" />
 				</div>
 				<h4 class="mb-2 font-semibold text-gray-900">Secure & Private</h4>
 				<p class="text-sm text-gray-600">Anonymous voting with data protection</p>
@@ -145,20 +115,7 @@
 
 			<div class="text-center">
 				<div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-teal-100">
-					<svg class="h-6 w-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-						/>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-						/>
-					</svg>
+					<Settings class="h-6 w-6 text-teal-600" />
 				</div>
 				<h4 class="mb-2 font-semibold text-gray-900">Customizable</h4>
 				<p class="text-sm text-gray-600">Rich descriptions and flexible options</p>
@@ -168,19 +125,7 @@
 				<div
 					class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100"
 				>
-					<svg
-						class="h-6 w-6 text-indigo-600"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-						/>
-					</svg>
+					<TrendingUp class="h-6 w-6 text-indigo-600" />
 				</div>
 				<h4 class="mb-2 font-semibold text-gray-900">Visual Results</h4>
 				<p class="text-sm text-gray-600">Beautiful charts and progress bars</p>
@@ -197,9 +142,9 @@
 				<ul class="space-y-4">
 					<li class="flex items-start">
 						<div
-							class="mr-3 mt-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-100"
+							class="mr-3 mt-1 flex size-8 items-center justify-center rounded-full bg-blue-100 p-2"
 						>
-							<div class="h-2 w-2 rounded-full bg-blue-600"></div>
+							<Users class="size-4 text-blue-600" />
 						</div>
 						<div>
 							<strong class="text-gray-900">Team Decisions:</strong>
@@ -210,9 +155,9 @@
 					</li>
 					<li class="flex items-start">
 						<div
-							class="mr-3 mt-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-100"
+							class="mr-3 mt-1 flex size-8 items-center justify-center rounded-full bg-blue-100 p-2"
 						>
-							<div class="h-2 w-2 rounded-full bg-blue-600"></div>
+							<Calendar class="size-4 text-blue-600" />
 						</div>
 						<div>
 							<strong class="text-gray-900">Event Planning:</strong>
@@ -224,9 +169,9 @@
 					</li>
 					<li class="flex items-start">
 						<div
-							class="mr-3 mt-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-100"
+							class="mr-3 mt-1 flex size-8 items-center justify-center rounded-full bg-blue-100 p-2"
 						>
-							<div class="h-2 w-2 rounded-full bg-blue-600"></div>
+							<MessageCircle class="size-4 text-blue-600" />
 						</div>
 						<div>
 							<strong class="text-gray-900">Feedback Collection:</strong>
@@ -243,9 +188,9 @@
 				<ul class="space-y-4">
 					<li class="flex items-start">
 						<div
-							class="mr-3 mt-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-100"
+							class="mr-3 mt-1 flex size-8 items-center justify-center rounded-full bg-green-100 p-2"
 						>
-							<div class="h-2 w-2 rounded-full bg-green-600"></div>
+							<Heart class="size-4 text-green-600" />
 						</div>
 						<div>
 							<strong class="text-gray-900">Audience Engagement:</strong>
@@ -256,9 +201,9 @@
 					</li>
 					<li class="flex items-start">
 						<div
-							class="mr-3 mt-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-100"
+							class="mr-3 mt-1 flex size-8 items-center justify-center rounded-full bg-green-100 p-2"
 						>
-							<div class="h-2 w-2 rounded-full bg-green-600"></div>
+							<GraduationCap class="size-4 text-green-600" />
 						</div>
 						<div>
 							<strong class="text-gray-900">Educational Quizzes:</strong>
@@ -269,9 +214,9 @@
 					</li>
 					<li class="flex items-start">
 						<div
-							class="mr-3 mt-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-100"
+							class="mr-3 mt-1 flex size-8 items-center justify-center rounded-full bg-green-100 p-2"
 						>
-							<div class="h-2 w-2 rounded-full bg-green-600"></div>
+							<BookOpen class="size-4 text-green-600" />
 						</div>
 						<div>
 							<strong class="text-gray-900">Content Ideas:</strong>
@@ -333,8 +278,7 @@
 		<div class="mx-auto max-w-2xl text-center">
 			<h2 class="mb-4 text-3xl font-bold text-gray-900">Ready to Get Started?</h2>
 			<p class="mb-8 text-xl text-gray-600">
-				Join thousands of users who trust our platform for their polling needs. No registration
-				required.
+				Join other users who trust our platform for their polling needs. No registration required.
 			</p>
 			<a
 				href="/create"
