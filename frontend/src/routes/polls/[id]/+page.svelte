@@ -205,7 +205,7 @@
 				{#if $voteStore.data}
 					<div class="mt-4 rounded-lg border border-green-500/20 bg-green-500/10 p-3">
 						<p class="text-sm text-green-700 dark:text-green-400">
-							{$voteStore.data.message}
+							Your vote has been successfully submitted!
 						</p>
 					</div>
 				{/if}
