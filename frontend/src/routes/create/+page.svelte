@@ -47,7 +47,7 @@
 					});
 
 					// Redirect to the created poll
-					await goto(`/${createdPoll.id}`);
+					await goto(`/polls/${createdPoll.id}`);
 				} catch (error) {
 					// Error is already handled by the store
 					console.error('Failed to create poll:', error);
