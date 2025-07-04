@@ -10,10 +10,6 @@
   "dev": {
     "port": 8787,
   },
-  "assets": {
-    "binding": "ASSETS",
-    "directory": "./public",
-  },
   "observability": {
     "enabled": true,
   },
