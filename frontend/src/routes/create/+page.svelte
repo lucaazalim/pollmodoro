@@ -80,7 +80,7 @@
 </svelte:head>
 
 <div class="mx-auto max-w-2xl p-6">
-	<h1 class="mb-8 text-3xl font-bold">Create a New Poll</h1>
+	<h1 class="text-foreground mb-8 text-3xl font-bold">Create a New Poll</h1>
 
 	<form use:enhance class="space-y-6">
 		<Form.Field {form} name="title">

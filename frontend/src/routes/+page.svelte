@@ -24,8 +24,8 @@
 <div class="mx-auto max-w-4xl p-6 text-center">
 	<!-- Hero Section -->
 	<div class="py-16">
-		<h1 class="mb-6 text-5xl font-bold text-gray-900">Get Instant Feedback with Smart Polls</h1>
-		<p class="mx-auto mb-10 max-w-3xl text-xl leading-relaxed text-gray-600">
+		<h1 class="text-foreground mb-6 text-5xl font-bold">Get Instant Feedback with Smart Polls</h1>
+		<p class="text-muted-foreground mx-auto mb-10 max-w-3xl text-xl leading-relaxed">
 			Create engaging polls in seconds, gather meaningful insights, and make better decisions.
 			Perfect for teams, educators, content creators, and anyone who values authentic feedback.
 		</p>
@@ -33,13 +33,13 @@
 		<div class="flex flex-col gap-4 sm:flex-row sm:justify-center">
 			<a
 				href="/create"
-				class="inline-block rounded-lg bg-blue-600 px-8 py-4 text-lg font-medium text-white shadow-lg transition-all hover:bg-blue-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+				class="bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-ring inline-block rounded-lg px-8 py-4 text-lg font-medium shadow-lg transition-all hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2"
 			>
 				Create Your First Poll
 			</a>
 			<a
 				href="#features"
-				class="inline-block rounded-lg border-2 border-gray-300 px-8 py-4 text-lg font-medium text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+				class="border-border text-foreground hover:border-border/80 hover:bg-accent focus:ring-ring inline-block rounded-lg border-2 px-8 py-4 text-lg font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2"
 			>
 				See Features
 			</a>
@@ -48,16 +48,16 @@
 
 	<!-- Key Features Section -->
 	<div id="features" class="border-t py-16">
-		<h2 class="mb-12 text-3xl font-bold text-gray-900">Why Choose Our Poll Platform?</h2>
+		<h2 class="text-foreground mb-12 text-3xl font-bold">Why Choose Our Poll Platform?</h2>
 		<div class="grid gap-10 md:grid-cols-3">
 			<div class="text-center">
 				<div
-					class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-100"
+					class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-100 dark:bg-blue-900/20"
 				>
-					<Zap class="size-8 text-blue-600" />
+					<Zap class="size-8 text-blue-600 dark:text-blue-400" />
 				</div>
-				<h3 class="mb-3 text-xl font-semibold text-gray-900">Lightning Fast Setup</h3>
-				<p class="leading-relaxed text-gray-600">
+				<h3 class="text-foreground mb-3 text-xl font-semibold">Lightning Fast Setup</h3>
+				<p class="text-muted-foreground leading-relaxed">
 					No sign-ups, no complications. Create professional polls in under 30 seconds and start
 					collecting responses immediately.
 				</p>
@@ -65,12 +65,12 @@
 
 			<div class="text-center">
 				<div
-					class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-green-100"
+					class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-green-100 dark:bg-green-900/20"
 				>
-					<BarChart3 class="size-8 text-green-600" />
+					<BarChart3 class="size-8 text-green-600 dark:text-green-400" />
 				</div>
-				<h3 class="mb-3 text-xl font-semibold text-gray-900">Real-Time Analytics</h3>
-				<p class="leading-relaxed text-gray-600">
+				<h3 class="text-foreground mb-3 text-xl font-semibold">Real-Time Analytics</h3>
+				<p class="text-muted-foreground leading-relaxed">
 					Watch votes pour in live with beautiful charts and instant percentage calculations. No
 					waiting, no delays.
 				</p>
@@ -78,12 +78,12 @@
 
 			<div class="text-center">
 				<div
-					class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-100"
+					class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-100 dark:bg-purple-900/20"
 				>
-					<Share2 class="size-8 text-purple-600" />
+					<Share2 class="size-8 text-purple-600 dark:text-purple-400" />
 				</div>
-				<h3 class="mb-3 text-xl font-semibold text-gray-900">Universal Sharing</h3>
-				<p class="leading-relaxed text-gray-600">
+				<h3 class="text-foreground mb-3 text-xl font-semibold">Universal Sharing</h3>
+				<p class="text-muted-foreground leading-relaxed">
 					Share anywhere with a simple link. Works perfectly on mobile, desktop, and all social
 					platforms.
 				</p>
@@ -93,75 +93,79 @@
 
 	<!-- Advanced Features -->
 	<div class="border-t py-16">
-		<h2 class="mb-12 text-3xl font-bold text-gray-900">Powerful Features for Every Use Case</h2>
+		<h2 class="text-foreground mb-12 text-3xl font-bold">Powerful Features for Every Use Case</h2>
 		<div class="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
 			<div class="text-center">
 				<div
-					class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-100"
+					class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-100 dark:bg-orange-900/20"
 				>
-					<CheckSquare class="h-6 w-6 text-orange-600" />
+					<CheckSquare class="h-6 w-6 text-orange-600 dark:text-orange-400" />
 				</div>
-				<h4 class="mb-2 font-semibold text-gray-900">Multiple Choice</h4>
-				<p class="text-sm text-gray-600">Single or multiple selections per voter</p>
-			</div>
-
-			<div class="text-center">
-				<div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-100">
-					<Shield class="h-6 w-6 text-red-600" />
-				</div>
-				<h4 class="mb-2 font-semibold text-gray-900">Secure & Private</h4>
-				<p class="text-sm text-gray-600">Anonymous voting with data protection</p>
-			</div>
-
-			<div class="text-center">
-				<div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-teal-100">
-					<Settings class="h-6 w-6 text-teal-600" />
-				</div>
-				<h4 class="mb-2 font-semibold text-gray-900">Customizable</h4>
-				<p class="text-sm text-gray-600">Rich descriptions and flexible options</p>
+				<h4 class="text-foreground mb-2 font-semibold">Multiple Choice</h4>
+				<p class="text-muted-foreground text-sm">Single or multiple selections per voter</p>
 			</div>
 
 			<div class="text-center">
 				<div
-					class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100"
+					class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-100 dark:bg-red-900/20"
 				>
-					<TrendingUp class="h-6 w-6 text-indigo-600" />
+					<Shield class="h-6 w-6 text-red-600 dark:text-red-400" />
 				</div>
-				<h4 class="mb-2 font-semibold text-gray-900">Visual Results</h4>
-				<p class="text-sm text-gray-600">Beautiful charts and progress bars</p>
+				<h4 class="text-foreground mb-2 font-semibold">Secure & Private</h4>
+				<p class="text-muted-foreground text-sm">Anonymous voting with data protection</p>
+			</div>
+
+			<div class="text-center">
+				<div
+					class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-teal-100 dark:bg-teal-900/20"
+				>
+					<Settings class="h-6 w-6 text-teal-600 dark:text-teal-400" />
+				</div>
+				<h4 class="text-foreground mb-2 font-semibold">Customizable</h4>
+				<p class="text-muted-foreground text-sm">Rich descriptions and flexible options</p>
+			</div>
+
+			<div class="text-center">
+				<div
+					class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 dark:bg-indigo-900/20"
+				>
+					<TrendingUp class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+				</div>
+				<h4 class="text-foreground mb-2 font-semibold">Visual Results</h4>
+				<p class="text-muted-foreground text-sm">Beautiful charts and progress bars</p>
 			</div>
 		</div>
 	</div>
 
 	<!-- Use Cases & Benefits -->
 	<div class="border-t py-16">
-		<h2 class="mb-12 text-3xl font-bold text-gray-900">Perfect for Every Scenario</h2>
+		<h2 class="text-foreground mb-12 text-3xl font-bold">Perfect for Every Scenario</h2>
 		<div class="grid gap-12 lg:grid-cols-2">
 			<div class="text-left">
-				<h3 class="mb-6 text-2xl font-semibold text-gray-900">For Teams & Organizations</h3>
+				<h3 class="text-foreground mb-6 text-2xl font-semibold">For Teams & Organizations</h3>
 				<ul class="space-y-4">
 					<li class="flex items-start">
 						<div
-							class="mr-3 mt-1 flex size-8 items-center justify-center rounded-full bg-blue-100 p-2"
+							class="mr-3 mt-1 flex size-8 items-center justify-center rounded-full bg-blue-100 p-2 dark:bg-blue-900/20"
 						>
-							<Users class="size-4 text-blue-600" />
+							<Users class="size-4 text-blue-600 dark:text-blue-400" />
 						</div>
 						<div>
-							<strong class="text-gray-900">Team Decisions:</strong>
-							<span class="text-gray-600">
+							<strong class="text-foreground">Team Decisions:</strong>
+							<span class="text-muted-foreground">
 								Quickly gather input on project directions, meeting times, or workplace policies</span
 							>
 						</div>
 					</li>
 					<li class="flex items-start">
 						<div
-							class="mr-3 mt-1 flex size-8 items-center justify-center rounded-full bg-blue-100 p-2"
+							class="mr-3 mt-1 flex size-8 items-center justify-center rounded-full bg-blue-100 p-2 dark:bg-blue-900/20"
 						>
-							<Calendar class="size-4 text-blue-600" />
+							<Calendar class="size-4 text-blue-600 dark:text-blue-400" />
 						</div>
 						<div>
-							<strong class="text-gray-900">Event Planning:</strong>
-							<span class="text-gray-600">
+							<strong class="text-foreground">Event Planning:</strong>
+							<span class="text-muted-foreground">
 								Choose venues, dates, catering options, or activities with input from all
 								stakeholders</span
 							>
@@ -169,13 +173,13 @@
 					</li>
 					<li class="flex items-start">
 						<div
-							class="mr-3 mt-1 flex size-8 items-center justify-center rounded-full bg-blue-100 p-2"
+							class="mr-3 mt-1 flex size-8 items-center justify-center rounded-full bg-blue-100 p-2 dark:bg-blue-900/20"
 						>
-							<MessageCircle class="size-4 text-blue-600" />
+							<MessageCircle class="size-4 text-blue-600 dark:text-blue-400" />
 						</div>
 						<div>
-							<strong class="text-gray-900">Feedback Collection:</strong>
-							<span class="text-gray-600">
+							<strong class="text-foreground">Feedback Collection:</strong>
+							<span class="text-muted-foreground">
 								Gather honest opinions on proposals, presentations, or company initiatives</span
 							>
 						</div>
@@ -184,43 +188,43 @@
 			</div>
 
 			<div class="text-left">
-				<h3 class="mb-6 text-2xl font-semibold text-gray-900">For Creators & Educators</h3>
+				<h3 class="text-foreground mb-6 text-2xl font-semibold">For Creators & Educators</h3>
 				<ul class="space-y-4">
 					<li class="flex items-start">
 						<div
-							class="mr-3 mt-1 flex size-8 items-center justify-center rounded-full bg-green-100 p-2"
+							class="mr-3 mt-1 flex size-8 items-center justify-center rounded-full bg-green-100 p-2 dark:bg-green-900/20"
 						>
-							<Heart class="size-4 text-green-600" />
+							<Heart class="size-4 text-green-600 dark:text-green-400" />
 						</div>
 						<div>
-							<strong class="text-gray-900">Audience Engagement:</strong>
-							<span class="text-gray-600">
+							<strong class="text-foreground">Audience Engagement:</strong>
+							<span class="text-muted-foreground">
 								Boost interaction on social media, live streams, or community platforms</span
 							>
 						</div>
 					</li>
 					<li class="flex items-start">
 						<div
-							class="mr-3 mt-1 flex size-8 items-center justify-center rounded-full bg-green-100 p-2"
+							class="mr-3 mt-1 flex size-8 items-center justify-center rounded-full bg-green-100 p-2 dark:bg-green-900/20"
 						>
-							<GraduationCap class="size-4 text-green-600" />
+							<GraduationCap class="size-4 text-green-600 dark:text-green-400" />
 						</div>
 						<div>
-							<strong class="text-gray-900">Educational Quizzes:</strong>
-							<span class="text-gray-600">
+							<strong class="text-foreground">Educational Quizzes:</strong>
+							<span class="text-muted-foreground">
 								Create interactive learning experiences and assess student understanding</span
 							>
 						</div>
 					</li>
 					<li class="flex items-start">
 						<div
-							class="mr-3 mt-1 flex size-8 items-center justify-center rounded-full bg-green-100 p-2"
+							class="mr-3 mt-1 flex size-8 items-center justify-center rounded-full bg-green-100 p-2 dark:bg-green-900/20"
 						>
-							<BookOpen class="size-4 text-green-600" />
+							<BookOpen class="size-4 text-green-600 dark:text-green-400" />
 						</div>
 						<div>
-							<strong class="text-gray-900">Content Ideas:</strong>
-							<span class="text-gray-600">
+							<strong class="text-foreground">Content Ideas:</strong>
+							<span class="text-muted-foreground">
 								Let your audience vote on topics, formats, or directions for future content</span
 							>
 						</div>
@@ -232,40 +236,40 @@
 
 	<!-- How it Works -->
 	<div class="border-t py-16">
-		<h2 class="mb-12 text-3xl font-bold text-gray-900">How It Works</h2>
+		<h2 class="text-foreground mb-12 text-3xl font-bold">How It Works</h2>
 		<div class="grid gap-10 md:grid-cols-3">
 			<div class="flex flex-col items-center text-center">
 				<div
-					class="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-2xl font-bold text-white shadow-lg"
+					class="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-2xl font-bold text-white shadow-lg dark:from-blue-400 dark:to-blue-500"
 				>
 					1
 				</div>
-				<h3 class="mb-4 text-xl font-semibold text-gray-900">Create Your Poll</h3>
-				<p class="leading-relaxed text-gray-600">
+				<h3 class="text-foreground mb-4 text-xl font-semibold">Create Your Poll</h3>
+				<p class="text-muted-foreground leading-relaxed">
 					Add your question, write compelling options, and choose between single or multiple choice.
 					Add descriptions to provide context.
 				</p>
 			</div>
 			<div class="flex flex-col items-center text-center">
 				<div
-					class="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-green-600 text-2xl font-bold text-white shadow-lg"
+					class="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-green-600 text-2xl font-bold text-white shadow-lg dark:from-green-400 dark:to-green-500"
 				>
 					2
 				</div>
-				<h3 class="mb-4 text-xl font-semibold text-gray-900">Share Everywhere</h3>
-				<p class="leading-relaxed text-gray-600">
+				<h3 class="text-foreground mb-4 text-xl font-semibold">Share Everywhere</h3>
+				<p class="text-muted-foreground leading-relaxed">
 					Copy your unique poll link and share it on social media, messaging apps, email, or embed
 					it in websites. Works everywhere.
 				</p>
 			</div>
 			<div class="flex flex-col items-center text-center">
 				<div
-					class="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-purple-600 text-2xl font-bold text-white shadow-lg"
+					class="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-purple-600 text-2xl font-bold text-white shadow-lg dark:from-purple-400 dark:to-purple-500"
 				>
 					3
 				</div>
-				<h3 class="mb-4 text-xl font-semibold text-gray-900">Watch Results Live</h3>
-				<p class="leading-relaxed text-gray-600">
+				<h3 class="text-foreground mb-4 text-xl font-semibold">Watch Results Live</h3>
+				<p class="text-muted-foreground leading-relaxed">
 					See votes and percentages update in real-time. Make informed decisions with clear, visual
 					data that updates as responses come in.
 				</p>
@@ -276,13 +280,13 @@
 	<!-- Call to Action -->
 	<div class="border-t py-16">
 		<div class="mx-auto max-w-2xl text-center">
-			<h2 class="mb-4 text-3xl font-bold text-gray-900">Ready to Get Started?</h2>
-			<p class="mb-8 text-xl text-gray-600">
+			<h2 class="text-foreground mb-4 text-3xl font-bold">Ready to Get Started?</h2>
+			<p class="text-muted-foreground mb-8 text-xl">
 				Join other users who trust our platform for their polling needs. No registration required.
 			</p>
 			<a
 				href="/create"
-				class="inline-block rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-10 py-4 text-lg font-medium text-white shadow-lg transition-all hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+				class="from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary/80 focus:ring-ring inline-block rounded-lg bg-gradient-to-r px-10 py-4 text-lg font-medium shadow-lg transition-all hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2"
 			>
 				Create Your Poll Now
 			</a>
