@@ -14,6 +14,11 @@
 	<link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
 	<link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
 	<link rel="manifest" href="/site.webmanifest" />
+	<script
+		defer
+		src="https://cloud.umami.is/script.js"
+		data-website-id="de08e990-bcfa-4051-a4c0-47bba8d521c8"
+	></script>
 </svelte:head>
 
 <div class="bg-background min-h-screen">
