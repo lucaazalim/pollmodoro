@@ -9,6 +9,7 @@
 		GraduationCap,
 		Heart,
 		MessageCircle,
+		Plus,
 		Settings,
 		Share2,
 		Shield,
@@ -33,6 +34,7 @@
 
 		<div class="flex flex-col gap-4 sm:flex-row sm:justify-center">
 			<Button href="/create" class="text-lg font-medium shadow-lg hover:shadow-xl" size="lg">
+				<Plus />
 				Create Your First Poll
 			</Button>
 			<Button href="#features" variant="outline" class="text-lg font-medium" size="lg">
