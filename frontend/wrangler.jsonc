@@ -18,6 +18,10 @@
 		{
 			"pattern": "pollmodoro.com",
 			"custom_domain": true
+		},
+		{
+			"pattern": "www.pollmodoro.com",
+			"custom_domain": true
 		}
 	]
 }
