@@ -10,6 +10,12 @@
   "dev": {
     "port": 8787,
   },
+  "routes": [
+    {
+      "pattern": "api.pollmodoro.com",
+      "custom_domain": true,
+    },
+  ],
   "observability": {
     "enabled": true,
   },
