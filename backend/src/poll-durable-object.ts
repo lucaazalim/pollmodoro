@@ -18,14 +18,11 @@ export class PollDurableObject extends DurableObject {
   storage: DurableObjectStorage;
   db: DrizzleSqliteDODatabase<any>;
 
-  currentlyConnectedWebSockets: WebSocket[];
-
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
 
     this.storage = this.ctx.storage;
     this.db = drizzle(this.storage, { logger: false });
-    this.currentlyConnectedWebSockets = [];
 
     ctx.blockConcurrencyWhile(async () => {
       await this._migrate();
@@ -73,7 +70,7 @@ export class PollDurableObject extends DurableObject {
     };
   }
 
-  async selectPollWithResults(): Promise<Result<PollWithResults | null>> {
+  async selectPollWithResults(): Promise<Result<PollWithResults>> {
     const pollData = await this.db.select().from(poll);
 
     if (!pollData || pollData.length === 0) {
@@ -155,16 +152,18 @@ export class PollDurableObject extends DurableObject {
       .values(voteInserts)
       .returning();
 
-    this.currentlyConnectedWebSockets.forEach((ws) => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(
-          JSON.stringify({
-            type: "newVote",
-            data: insertedVotes,
-          } satisfies WebSocketMessage<Vote[]>)
-        );
-      }
-    });
+    const updatedPollWithResults = await this.selectPollWithResults();
+
+    if (!updatedPollWithResults.success) {
+      return updatedPollWithResults;
+    }
+
+    const resultsBroadcast: WebSocketMessage<PollWithResults> = {
+      type: "results",
+      data: updatedPollWithResults.data,
+    };
+
+    this.#broadcast(resultsBroadcast);
 
     return {
       success: true,
@@ -172,21 +171,21 @@ export class PollDurableObject extends DurableObject {
     };
   }
 
+  #broadcast(message: WebSocketMessage<any>) {
+    this.ctx.getWebSockets().forEach((ws) => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(message));
+      }
+    });
+  }
+
   async fetch(request: Request): Promise<Response> {
-    // Creates two ends of a WebSocket connection.
     const webSocketPair = new WebSocketPair();
     const [client, server] = Object.values(webSocketPair);
 
-    // Calling `accept()` tells the runtime that this WebSocket is to begin terminating
-    // request within the Durable Object. It has the effect of "accepting" the connection,
-    // and allowing the WebSocket to send and receive messages.
     this.ctx.acceptWebSocket(server);
-    this.currentlyConnectedWebSockets.push(client);
 
-    // If the client closes the connection, the runtime will close the connection too.
     server.addEventListener("close", (cls: CloseEvent) => {
-      this.currentlyConnectedWebSockets =
-        this.currentlyConnectedWebSockets.filter((ws) => ws !== client);
       server.close(cls.code, "Durable Object is closing WebSocket");
     });
 

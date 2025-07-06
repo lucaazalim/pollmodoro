@@ -104,9 +104,14 @@ export const pollStore = (() => {
 
 	const reset = () => set({ loading: false, error: null, data: null });
 
+	const updatePollData = (pollData: Awaited<ReturnType<typeof trpc.getPoll.query>>) => {
+		update((state) => ({ ...state, data: pollData }));
+	};
+
 	return {
 		subscribe,
 		fetchPoll,
+		updatePollData,
 		reset
 	};
 })();

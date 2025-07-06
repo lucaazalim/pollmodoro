@@ -1,20 +1,67 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
+	import { PUBLIC_WEBSOCKET_URL } from '$env/static/public';
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
+	import { Progress } from '$lib/components/ui/progress';
 	import { pollStore, voteStore } from '$lib/stores';
 	import { Calendar, Check, TrendingUp } from '@lucide/svelte';
+	import { onDestroy } from 'svelte';
+	import { toast } from 'svelte-sonner';
+	import type { PollWithResults, WebSocketMessage } from '../../../../../backend/src/types';
 
 	let selectedOptions: number[] = [];
 	let selectedOption: number | null = null;
+	let websocket: WebSocket | null = null;
 
 	// Get poll ID from URL parameters
-	$: pollId = $page.params.id;
+	$: pollId = page.params.id;
 
 	// Load poll when component mounts or poll ID changes
 	$: if (pollId) {
 		loadPoll();
+		connectWebSocket();
 	}
+
+	function connectWebSocket() {
+		if (!pollId || !PUBLIC_WEBSOCKET_URL) return;
+
+		if (websocket) {
+			websocket.close();
+		}
+
+		websocket = new WebSocket(PUBLIC_WEBSOCKET_URL + `?pollId=${pollId}`);
+
+		websocket.onopen = () => {
+			console.log('Connected to WebSocket');
+		};
+
+		websocket.onmessage = (event) => {
+			try {
+				const message = JSON.parse(event.data) as WebSocketMessage<PollWithResults>;
+
+				if (message.type === 'results' && message.data) {
+					pollStore.updatePollData(message.data);
+				}
+			} catch (error) {
+				console.error('Error parsing WebSocket message:', error);
+			}
+		};
+
+		websocket.onclose = () => {
+			console.log('Disconnected from WebSocket');
+		};
+
+		websocket.onerror = (error) => {
+			console.error('WebSocket error:', error);
+		};
+	}
+
+	onDestroy(() => {
+		if (websocket) {
+			websocket.close();
+		}
+	});
 
 	async function loadPoll() {
 		if (!pollId) return;
@@ -24,7 +71,7 @@
 		try {
 			await pollStore.fetchPoll({ id: pollId });
 		} catch (error) {
-			console.error('Error loading poll:', error);
+			toast.error('Failed to load poll. Please try again.');
 		}
 	}
 	async function handleVote() {
@@ -46,10 +93,16 @@
 				optionIds
 			});
 
-			// Refresh poll data to show updated results
-			await loadPoll();
+			// Show success message
+			toast.success('Your vote has been successfully submitted!');
+
+			// Clear selections after successful vote
+			selectedOptions = [];
+			selectedOption = null;
+
+			// Poll data will be updated automatically via WebSocket
 		} catch (error) {
-			console.error('Error voting:', error);
+			toast.error('Failed to submit vote. Please try again.');
 		}
 	}
 
@@ -118,7 +171,7 @@
 					{#each poll.options as option}
 						{@const percentage = getPercentage(option.votesCount, poll.totalVotes)}
 
-						<div class="relative">
+						<div class="space-y-2">
 							<!-- Vote Option -->
 							<Label
 								class="hover:bg-accent block w-full cursor-pointer rounded-lg border p-4 transition-colors {(
@@ -163,10 +216,7 @@
 							</Label>
 
 							<!-- Progress Bar -->
-							<div
-								class="bg-primary/20 absolute bottom-0 left-0 h-1 rounded-b-lg transition-all duration-300"
-								style="width: {percentage}%"
-							></div>
+							<Progress value={percentage} class="h-2" />
 						</div>
 					{/each}
 				</div>
@@ -194,21 +244,6 @@
 						{/if}
 					</Button>
 				</div>
-
-				<!-- Error/Success Messages -->
-				{#if $voteStore.error}
-					<div class="bg-destructive/10 border-destructive/20 mt-4 rounded-lg border p-3">
-						<p class="text-destructive text-sm">{$voteStore.error}</p>
-					</div>
-				{/if}
-
-				{#if $voteStore.data}
-					<div class="mt-4 rounded-lg border border-green-500/20 bg-green-500/10 p-3">
-						<p class="text-sm text-green-700 dark:text-green-400">
-							Your vote has been successfully submitted!
-						</p>
-					</div>
-				{/if}
 			</div>
 		</div>
 

@@ -7,6 +7,7 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { createPollStore } from '$lib/stores';
 	import { Trash } from '@lucide/svelte';
+	import { toast } from 'svelte-sonner';
 	import { defaults, type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { createPollSchema, type CreatePollSchema } from './schema.js';
@@ -33,7 +34,7 @@
 			validators: zod(createPollSchema),
 			async onUpdate({ form }) {
 				if (!form.valid) {
-					console.error('Erro na validação!');
+					toast.error('Please fix the form errors before submitting.');
 					return;
 				}
 
@@ -46,11 +47,12 @@
 						pollType: 'multiple_choice' as const
 					});
 
+					toast.success('Poll created successfully!');
+
 					// Redirect to the created poll
 					await goto(`/polls/${createdPoll.id}`);
 				} catch (error) {
-					// Error is already handled by the store
-					console.error('Failed to create poll:', error);
+					toast.error('Failed to create poll. Please try again.');
 				}
 			}
 		}
@@ -158,7 +160,7 @@
 		<Form.Field
 			{form}
 			name="allowMultipleOptions"
-			class="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4"
+			class="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4"
 		>
 			<Form.Control>
 				{#snippet children({ props })}
@@ -182,11 +184,5 @@
 				{$createPollStore.loading ? 'Creating Poll...' : 'Create Poll'}
 			</Form.Button>
 		</div>
-
-		{#if $createPollStore.error}
-			<div class="bg-destructive/10 border-destructive/20 rounded-md border p-4">
-				<p class="text-destructive text-sm">{$createPollStore.error}</p>
-			</div>
-		{/if}
 	</form>
 </div>

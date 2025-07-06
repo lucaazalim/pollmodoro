@@ -1,30 +1,26 @@
 import { initTRPC } from "@trpc/server";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+import { OnErrorFunction } from "@trpc/server/http";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { PollDurableObject } from "./poll-durable-object";
 import { unwrapResult } from "./result";
+import { TRPCContext } from "./types";
 
-// Export the Durable Object class for Wrangler
 export { PollDurableObject };
+
+export type AppRouter = typeof appRouter;
 
 export type Env = {
   POLL_DURABLE_OBJECT: DurableObjectNamespace<PollDurableObject>;
 };
 
-// Create context type
-interface Context {
-  env: Env;
-  request: Request;
-}
+// Initialize tRPC context with the environment and request
 
-// Initialize tRPC
-const t = initTRPC.context<Context>().create();
+const { router, procedure } = initTRPC.context<TRPCContext>().create();
 
-// Create router
-const { router, procedure } = t;
+// Zod schemas for input validation
 
-// Zod validation schemas
 const createPollSchema = z.object({
   title: z.string().min(1, "Title is required").max(200, "Title too long"),
   description: z.string().max(500, "Description too long").optional(),
@@ -117,28 +113,22 @@ const appRouter = router({
   }),
 });
 
-// Export type router type signature,
-// NOT the router itself.
-export type AppRouter = typeof appRouter;
-
-// Create context function
-const createContext = (env: Env, request: Request): Context => ({
-  env,
-  request,
-});
-
 // Export default function to handle requests
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
     // Handle WebSocket upgrade requests
-    if (url.pathname.endsWith("/websocket")) {
+    if (request.method === "GET" && url.pathname.endsWith("/websocket")) {
       const upgradeHeader = request.headers.get("Upgrade");
 
       if (!upgradeHeader || upgradeHeader !== "websocket") {
-        return new Response("Durable Object expected Upgrade: websocket", {
+        return new Response(null, {
           status: 426,
+          statusText: "Durable Object expected Upgrade: websocket",
+          headers: {
+            "Content-Type": "text/plain",
+          },
         });
       }
 
@@ -171,8 +161,11 @@ export default {
       endpoint: "/trpc",
       req: request,
       router: appRouter,
-      createContext: () => createContext(env, request),
-      onError: ({ error, path }) => {
+      createContext: () => ({ env, request }) satisfies TRPCContext,
+      onError: ({
+        error,
+        path,
+      }: Parameters<OnErrorFunction<AppRouter, Request>>[0]) => {
         console.error(`❌ tRPC failed on ${path}:`, error);
       },
     });
