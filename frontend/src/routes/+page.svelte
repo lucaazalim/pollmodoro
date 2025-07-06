@@ -20,7 +20,7 @@
 </script>
 
 <svelte:head>
-	<title>Poll App - Create and Share Polls</title>
+	<title>Pollmodoro - Create and Share Polls</title>
 </svelte:head>
 
 <div class="mx-auto max-w-5xl p-6 text-center">

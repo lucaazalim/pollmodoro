@@ -114,7 +114,7 @@
 
 <svelte:head>
 	<title>
-		{$pollStore.data?.title || 'Poll'} - Poll App
+		{$pollStore.data?.title || 'Poll'} - Pollmodoro
 	</title>
 </svelte:head>
 
