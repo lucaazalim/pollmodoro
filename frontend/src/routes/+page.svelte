@@ -21,6 +21,10 @@
 
 <svelte:head>
 	<title>Pollmodoro - Create and Share Polls</title>
+	<meta
+		name="description"
+		content="Create engaging polls in seconds, gather meaningful insights, and make better decisions. Perfect for teams, educators, content creators, and anyone who values authentic feedback."
+	/>
 </svelte:head>
 
 <div class="mx-auto max-w-5xl p-6 text-center">
