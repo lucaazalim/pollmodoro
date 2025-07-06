@@ -29,7 +29,7 @@
 				<a href="/">
 					<div class="flex items-center">
 						<img src="/pollmodoro.png" alt="Pollmodoro Logo" class="mr-2 h-8 w-8" />
-						<span class="text-foreground text-xl font-bold">Pollmodoro</span>
+						<span class="text-foreground font-serif text-xl font-bold">Pollmodoro</span>
 					</div>
 				</a>
 				<div class="flex flex-row items-center space-x-4">
