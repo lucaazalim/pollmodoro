@@ -2,7 +2,6 @@ import { DurableObject } from "cloudflare:workers";
 import { count, eq, getTableColumns } from "drizzle-orm";
 import { drizzle, DrizzleSqliteDODatabase } from "drizzle-orm/durable-sqlite";
 import { migrate } from "drizzle-orm/durable-sqlite/migrator";
-import { Env } from ".";
 import migrations from "../drizzle/migrations";
 import { Result } from "./result";
 import { poll, pollOptions, votes } from "./schema";

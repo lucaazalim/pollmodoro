@@ -10,19 +10,23 @@
   "dev": {
     "port": 8787,
   },
-  "routes": [
-    {
-      "pattern": "api.pollmodoro.com",
-      "custom_domain": true,
-    },
-  ],
   "observability": {
     "enabled": true,
+  },
+  "vars": {
+    "FRONTEND_URL": "http://localhost:8787",
   },
   "migrations": [
     {
       "tag": "v1",
       "new_sqlite_classes": ["PollDurableObject"],
+    },
+  ],
+  "rules": [
+    {
+      "type": "Text",
+      "globs": ["**/*.sql"],
+      "fallthrough": true,
     },
   ],
   "durable_objects": {
@@ -33,11 +37,25 @@
       },
     ],
   },
-  "rules": [
-    {
-      "type": "Text",
-      "globs": ["**/*.sql"],
-      "fallthrough": true,
+  "env": {
+    "production": {
+      "vars": {
+        "FRONTEND_URL": "https://pollmodoro.com",
+      },
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "POLL_DURABLE_OBJECT",
+            "class_name": "PollDurableObject",
+          },
+        ],
+      },
+      "routes": [
+        {
+          "pattern": "api.pollmodoro.com",
+          "custom_domain": true,
+        },
+      ],
     },
-  ],
+  },
 }
