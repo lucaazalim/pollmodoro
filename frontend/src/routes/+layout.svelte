@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
+	import { Button } from '$lib/components/ui/button';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { ModeWatcher } from 'mode-watcher';
 	import '../app.css';
@@ -13,16 +14,12 @@
 		<div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
 			<div class="flex h-16 justify-between">
 				<div class="flex items-center">
-					<a href="/" class="text-foreground text-xl font-bold"> Poll App </a>
+					<img src="/pollmodoro.png" alt="Pollmodoro Logo" class="mr-2 h-8 w-8" />
+					<a href="/" class="text-foreground text-xl font-bold">Pollmodoro</a>
 				</div>
 				<div class="flex flex-row items-center space-x-4">
 					<ThemeSwitcher />
-					<a
-						href="/create"
-						class="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4 py-2 transition-colors"
-					>
-						Create Poll
-					</a>
+					<Button href="/create">Create Poll</Button>
 				</div>
 			</div>
 		</div>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	// Modern landing page focused on features and benefits
+	import { Button } from '$lib/components/ui/button';
 	import {
 		BarChart3,
 		BookOpen,
@@ -21,34 +22,28 @@
 	<title>Poll App - Create and Share Polls</title>
 </svelte:head>
 
-<div class="mx-auto max-w-4xl p-6 text-center">
+<div class="mx-auto max-w-5xl p-6 text-center">
 	<!-- Hero Section -->
 	<div class="py-16">
-		<h1 class="text-foreground mb-6 text-5xl font-bold">Get Instant Feedback with Smart Polls</h1>
+		<h1 class="text-foreground mb-6 text-5xl font-bold">Get Instant Feedback with Pollmodoro</h1>
 		<p class="text-muted-foreground mx-auto mb-10 max-w-3xl text-xl leading-relaxed">
 			Create engaging polls in seconds, gather meaningful insights, and make better decisions.
 			Perfect for teams, educators, content creators, and anyone who values authentic feedback.
 		</p>
 
 		<div class="flex flex-col gap-4 sm:flex-row sm:justify-center">
-			<a
-				href="/create"
-				class="bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-ring inline-block rounded-lg px-8 py-4 text-lg font-medium shadow-lg transition-all hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2"
-			>
+			<Button href="/create" class="text-lg font-medium shadow-lg hover:shadow-xl" size="lg">
 				Create Your First Poll
-			</a>
-			<a
-				href="#features"
-				class="border-border text-foreground hover:border-border/80 hover:bg-accent focus:ring-ring inline-block rounded-lg border-2 px-8 py-4 text-lg font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2"
-			>
+			</Button>
+			<Button href="#features" variant="outline" class="text-lg font-medium" size="lg">
 				See Features
-			</a>
+			</Button>
 		</div>
 	</div>
 
 	<!-- Key Features Section -->
 	<div id="features" class="border-t py-16">
-		<h2 class="text-foreground mb-12 text-3xl font-bold">Why Choose Our Poll Platform?</h2>
+		<h2 class="text-foreground mb-12 text-3xl font-bold">Why Choose Pollmodoro?</h2>
 		<div class="grid gap-10 md:grid-cols-3">
 			<div class="text-center">
 				<div
@@ -284,12 +279,9 @@
 			<p class="text-muted-foreground mb-8 text-xl">
 				Join other users who trust our platform for their polling needs. No registration required.
 			</p>
-			<a
-				href="/create"
-				class="from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary/80 focus:ring-ring inline-block rounded-lg bg-gradient-to-r px-10 py-4 text-lg font-medium shadow-lg transition-all hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2"
-			>
+			<Button href="/create" class="text-lg font-medium shadow-lg hover:shadow-xl" size="lg">
 				Create Your Poll Now
-			</a>
+			</Button>
 		</div>
 	</div>
 </div>
