@@ -23,5 +23,13 @@
 			"pattern": "www.pollmodoro.com",
 			"custom_domain": true
 		}
-	]
+	],
+	"env": {
+		"production": {
+			"vars": {
+				"PUBLIC_TRPC_URL": "https://api.pollmodoro.com/trpc",
+				"PUBLIC_WEBSOCKET_URL": "wss://api.pollmodoro.com/websocket"
+			}
+		}
+	}
 }

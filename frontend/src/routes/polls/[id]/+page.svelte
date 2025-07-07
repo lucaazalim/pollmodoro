@@ -1,14 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { PUBLIC_WEBSOCKET_URL } from '$env/static/public';
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
 	import { Progress } from '$lib/components/ui/progress';
 	import { pollStore, voteStore } from '$lib/stores';
+	import { connectWebSocket } from '$lib/websocket';
 	import { Calendar, Check, TrendingUp } from '@lucide/svelte';
 	import { onDestroy } from 'svelte';
 	import { toast } from 'svelte-sonner';
-	import type { PollWithResults, WebSocketMessage } from '../../../../../backend/src/types';
 
 	let selectedOptions: number[] = [];
 	let selectedOption: number | null = null;
@@ -17,44 +16,18 @@
 	// Get poll ID from URL parameters
 	$: pollId = page.params.id;
 
-	// Load poll when component mounts or poll ID changes
+	// Load poll and connect WebSocket
 	$: if (pollId) {
-		loadPoll();
-		connectWebSocket();
-	}
+		selectedOptions = [];
+		selectedOption = null;
 
-	function connectWebSocket() {
-		if (!pollId || !PUBLIC_WEBSOCKET_URL) return;
-
-		if (websocket) {
-			websocket.close();
+		try {
+			pollStore.fetchPoll({ id: pollId });
+		} catch (error) {
+			toast.error('Failed to load poll. Please try again.');
 		}
 
-		websocket = new WebSocket(PUBLIC_WEBSOCKET_URL + `?pollId=${pollId}`);
-
-		websocket.onopen = () => {
-			console.log('Connected to WebSocket');
-		};
-
-		websocket.onmessage = (event) => {
-			try {
-				const message = JSON.parse(event.data) as WebSocketMessage<PollWithResults>;
-
-				if (message.type === 'results' && message.data) {
-					pollStore.updatePollData(message.data);
-				}
-			} catch (error) {
-				console.error('Error parsing WebSocket message:', error);
-			}
-		};
-
-		websocket.onclose = () => {
-			console.log('Disconnected from WebSocket');
-		};
-
-		websocket.onerror = (error) => {
-			console.error('WebSocket error:', error);
-		};
+		websocket = connectWebSocket(pollId, websocket);
 	}
 
 	onDestroy(() => {
@@ -63,17 +36,6 @@
 		}
 	});
 
-	async function loadPoll() {
-		if (!pollId) return;
-		selectedOptions = [];
-		selectedOption = null;
-
-		try {
-			await pollStore.fetchPoll({ id: pollId });
-		} catch (error) {
-			toast.error('Failed to load poll. Please try again.');
-		}
-	}
 	async function handleVote() {
 		if (!pollId) return;
 
@@ -128,7 +90,6 @@
 		<div class="bg-destructive/10 border-destructive/20 rounded-lg border p-6 text-center">
 			<h2 class="text-destructive mb-2 text-xl font-semibold">Error Loading Poll</h2>
 			<p class="text-destructive/80">{$pollStore.error}</p>
-			<Button onclick={loadPoll} variant="destructive" class="mt-4">Try Again</Button>
 		</div>
 	{:else if $pollStore.data}
 		{@const poll = $pollStore.data}
