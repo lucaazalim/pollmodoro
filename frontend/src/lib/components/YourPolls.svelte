@@ -66,7 +66,9 @@
 								{@const percentage = getPercentage(option.votesCount, poll.totalVotes)}
 								<div class="space-y-1">
 									<div class="flex items-center justify-between gap-2 text-sm">
-										<span class="line-clamp-1 text-ellipsis font-medium">{option.optionText}</span>
+										<span class="line-clamp-1 overflow-ellipsis text-nowrap font-medium"
+											>{option.optionText}</span
+										>
 										<div class="flex flex-shrink-0 items-center gap-2">
 											<span class="font-semibold">{option.votesCount}</span>
 											<span class="text-muted-foreground">({percentage}%)</span>

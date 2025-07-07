@@ -145,15 +145,15 @@
 										? 'border-primary bg-primary/5'
 										: 'border-border'}"
 								>
-									<div class="flex items-center justify-between">
-										<div class="flex flex-1 items-center">
-											<div class="mr-3 flex-shrink-0">
+									<div class="flex items-center justify-between gap-4">
+										<div class="flex flex-row items-center justify-between gap-3">
+											<div>
 												{#if poll.allowMultipleOptions}
 													<input
 														type="checkbox"
 														value={option.id}
 														bind:group={selectedOptions}
-														class="accent-primary h-4 w-4"
+														class="accent-primary size-4"
 													/>
 												{:else}
 													<input
@@ -161,15 +161,17 @@
 														name="poll-option"
 														value={option.id}
 														bind:group={selectedOption}
-														class="accent-primary h-4 w-4"
+														class="accent-primary size-4"
 													/>
 												{/if}
 											</div>
 
-											<span class="font-medium">{option.optionText}</span>
+											<p class="wrap-anywhere font-medium/5 line-clamp-3 leading-snug">
+												{option.optionText}
+											</p>
 										</div>
 
-										<div class="ml-4 text-right">
+										<div class="text-right">
 											<div class="text-lg font-bold">{option.votesCount}</div>
 											<div class="text-muted-foreground text-sm">
 												{percentage}%
