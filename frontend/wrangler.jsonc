@@ -24,6 +24,10 @@
 			"custom_domain": true
 		}
 	],
+	"vars": {
+		"PUBLIC_TRPC_URL": "http://localhost:8787/trpc",
+		"PUBLIC_WEBSOCKET_URL": "ws://localhost:8787/websocket"
+	},
 	"env": {
 		"production": {
 			"vars": {
