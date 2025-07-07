@@ -1,8 +1,8 @@
-import { PUBLIC_WEBSOCKET_URL } from '$env/static/public';
+import { env } from '$env/dynamic/public';
 import type { PollWithResults, WebSocketMessage } from '../../../backend/src/types';
 import { pollStore } from './stores';
 
-const webSocketUrl = PUBLIC_WEBSOCKET_URL || 'ws://localhost:8787/websocket';
+const webSocketUrl = env.PUBLIC_WEBSOCKET_URL || 'ws://localhost:8787/websocket';
 
 export function connectWebSocket(
 	pollId: string,
