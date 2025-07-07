@@ -29,10 +29,6 @@
       "fallthrough": true,
     },
   ],
-  "build": {
-    "cwd": "backend",
-    "watch_dir": "backend",
-  },
   "durable_objects": {
     "bindings": [
       {
