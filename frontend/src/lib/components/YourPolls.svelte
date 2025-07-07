@@ -3,9 +3,10 @@
 	import { localStore } from '$lib/localStore.svelte';
 	import { pollStore, type GetPollOutput } from '$lib/stores';
 	import { getPercentage } from '$lib/utils';
-	import { TrendingUp } from '@lucide/svelte';
+	import { Plus, TrendingUp } from '@lucide/svelte';
 	import { sineInOut } from 'svelte/easing';
 	import { fade } from 'svelte/transition';
+	import Button from './ui/button/button.svelte';
 
 	let pollIds = localStore('polls', [] as string[]);
 	let polls: GetPollOutput[] = [];
@@ -29,7 +30,15 @@
 			your saved polls will disappear.
 		</p>
 	</div>
-	{#if polls.length !== 0}
+	{#if polls.length === 0}
+		<div class="bg-card flex flex-col items-center space-y-5 rounded-lg border p-5">
+			<span>You haven’t created any polls on this device yet.</span>
+			<Button href="/create" class="w-fit">
+				<Plus />
+				Create Poll
+			</Button>
+		</div>
+	{:else}
 		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
 			{#each polls as poll}
 				<a href="/polls/{poll.id}" class="block">
