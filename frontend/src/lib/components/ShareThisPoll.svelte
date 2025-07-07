@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Clipboard, Mail } from '@lucide/svelte';
+	import { Clipboard, Mail, Share2 } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import FacebookIcon from './icons/FacebookIcon.svelte';
 	import RedditIcon from './icons/RedditIcon.svelte';
@@ -29,7 +29,10 @@
 </script>
 
 <div class="bg-card space-y-3 rounded-lg border p-6 shadow-sm">
-	<h2 class="mb-2 text-xl font-bold">Share this poll</h2>
+	<h2 class="mb-5 flex flex-row items-center gap-2 text-xl font-bold">
+		<Share2 class="text-muted" />
+		Share this poll
+	</h2>
 	<div class="flex flex-row gap-2">
 		<Input value={window.location.href} readonly aria-label="Poll URL" />
 		<Button

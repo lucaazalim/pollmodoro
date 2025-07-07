@@ -1,5 +1,6 @@
 <script lang="ts">
 	// Modern landing page focused on features and benefits
+	import CreatePollButton from '$lib/components/CreatePollButton.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		BarChart3,
@@ -9,7 +10,6 @@
 		GraduationCap,
 		Heart,
 		MessageCircle,
-		Plus,
 		Settings,
 		Share2,
 		Shield,
@@ -39,10 +39,7 @@
 		</p>
 
 		<div class="flex flex-col gap-4 sm:flex-row sm:justify-center">
-			<Button href="/create" class="text-lg font-medium shadow-lg hover:shadow-xl" size="lg">
-				<Plus />
-				Create Poll
-			</Button>
+			<CreatePollButton class="text-lg font-medium shadow-lg hover:shadow-xl" size="lg" />
 			<Button href="#features" variant="outline" class="text-lg font-medium" size="lg">
 				See Features
 			</Button>

@@ -6,10 +6,11 @@
 	import { Plus, TrendingUp } from '@lucide/svelte';
 	import { sineInOut } from 'svelte/easing';
 	import { fade } from 'svelte/transition';
+	import LoadSpinner from './LoadSpinner.svelte';
 	import Button from './ui/button/button.svelte';
 
 	let pollIds = localStore('polls', [] as string[]);
-	let polls: GetPollOutput[] = [];
+	let polls: GetPollOutput[] | undefined = undefined;
 
 	$: Promise.all(
 		pollIds.value.map(async (id) => {
@@ -30,7 +31,11 @@
 			your saved polls will disappear.
 		</p>
 	</div>
-	{#if polls.length === 0}
+	{#if polls === undefined}
+		<div class="flex items-center justify-center py-12">
+			<LoadSpinner />
+		</div>
+	{:else if polls.length === 0}
 		<div class="bg-card flex flex-col items-center space-y-5 rounded-lg border p-5">
 			<span>You haven’t created any polls on this device yet.</span>
 			<Button href="/create" class="w-fit">
@@ -47,9 +52,13 @@
 					>
 						<!-- Poll Header -->
 						<div class="mb-3">
-							<h3 class="line-clamp-1 font-bold">{poll.title}</h3>
+							<h3 class="line-clamp-1 text-ellipsis font-bold">{poll.title}</h3>
 							{#if poll.description}
-								<p class="text-muted-foreground mt-1 line-clamp-2 text-sm">{poll.description}</p>
+								<p
+									class="text-muted-foreground wrap-break-word mt-1 line-clamp-2 text-ellipsis text-wrap text-sm"
+								>
+									{poll.description}
+								</p>
 							{/if}
 						</div>
 
