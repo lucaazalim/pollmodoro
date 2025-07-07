@@ -5,12 +5,17 @@
 	import { Input } from '$lib/components/ui/input';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { createPollStore } from '$lib/stores';
+	import { localStore } from '$lib/localStore.svelte.js';
+	import { createPollStore } from '$lib/stores.js';
 	import { Trash } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
+	import { sineInOut } from 'svelte/easing';
+	import { fade } from 'svelte/transition';
 	import { defaults, type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { createPollSchema, type CreatePollSchema } from './schema.js';
+
+	let savedPolls = localStore('polls', [] as string[]);
 
 	interface Props {
 		data?: {
@@ -49,6 +54,9 @@
 
 					toast.success('Poll created successfully!');
 
+					// Save poll ID to local storage
+					savedPolls.value = [...savedPolls.value, createdPoll.id].slice(-9);
+
 					// Redirect to the created poll
 					await goto(`/polls/${createdPoll.id}`);
 				} catch (error) {
@@ -79,7 +87,7 @@
 	<title>Create Poll</title>
 </svelte:head>
 
-<div class="mx-auto max-w-2xl p-6">
+<div class="mx-auto max-w-2xl p-6" in:fade={{ duration: 500, easing: sineInOut }}>
 	<h1 class="text-foreground mb-8 text-3xl font-bold">Create a New Poll</h1>
 
 	<form use:enhance class="space-y-6">

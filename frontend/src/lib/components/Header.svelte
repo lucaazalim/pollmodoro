@@ -1,5 +1,5 @@
 <script>
-	import { Plus } from '@lucide/svelte';
+	import { ChartBar, Plus } from '@lucide/svelte';
 	import ThemeSwitcher from './ThemeSwitcher.svelte';
 	import Button from './ui/button/button.svelte';
 </script>
@@ -15,6 +15,10 @@
 			</a>
 			<div class="flex flex-row items-center space-x-4">
 				<ThemeSwitcher />
+				<Button variant="outline" href="/polls">
+					<ChartBar />
+					Your Polls
+				</Button>
 				<Button href="/create">
 					<Plus />
 					Create Poll

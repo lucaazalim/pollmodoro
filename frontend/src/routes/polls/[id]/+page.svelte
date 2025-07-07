@@ -7,6 +7,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Progress } from '$lib/components/ui/progress';
 	import { pollStore, voteStore } from '$lib/stores';
+	import { getPercentage } from '$lib/utils';
 	import { connectWebSocket } from '$lib/websocket';
 	import { Calendar, Check, TrendingUp } from '@lucide/svelte';
 	import { onDestroy } from 'svelte';
@@ -69,11 +70,6 @@
 		} catch (error) {
 			toast.error('Failed to submit vote. Please try again.');
 		}
-	}
-
-	function getPercentage(votes: number, total: number): number {
-		if (total === 0) return 0;
-		return Math.round((votes / total) * 100);
 	}
 </script>
 

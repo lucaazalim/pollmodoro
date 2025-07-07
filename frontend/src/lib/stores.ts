@@ -1,10 +1,16 @@
+import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
 import { writable } from 'svelte/store';
-import { trpc } from './trpc';
+import { trpc, type AppRouter } from './trpc';
+
+type Inputs = inferRouterInputs<AppRouter>;
+type Outputs = inferRouterOutputs<AppRouter>;
 
 // Type helpers for tRPC responses
-type CreatePollInput = Parameters<typeof trpc.createPoll.mutate>[0];
-type CreateVoteInput = Parameters<typeof trpc.createVote.mutate>[0];
-type GetPollInput = Parameters<typeof trpc.getPoll.query>[0];
+type CreatePollInput = Inputs['createPoll'];
+type CreateVoteInput = Inputs['createVote'];
+type GetPollInput = Inputs['getPoll'];
+
+export type GetPollOutput = Outputs['getPoll'];
 
 // Store for managing poll creation
 export const createPollStore = (() => {

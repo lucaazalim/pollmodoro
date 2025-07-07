@@ -13,3 +13,8 @@ export type WithoutChildrenOrChild<T> = WithoutChildren<WithoutChild<T>>;
 export type WithElementRef<T, U extends HTMLElement = HTMLElement> = T & {
 	ref?: U | null;
 };
+
+export function getPercentage(votes: number, total: number): number {
+	if (total === 0) return 0;
+	return Math.round((votes / total) * 100);
+}
