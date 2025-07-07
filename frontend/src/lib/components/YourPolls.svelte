@@ -48,36 +48,26 @@
 			{#each polls as poll}
 				<a href="/polls/{poll.id}" class="block">
 					<div
-						class="bg-card rounded-lg border p-4 shadow-sm transition-all hover:scale-[102%] hover:shadow-md"
+						class="bg-card rounded-lg border shadow-sm transition-all hover:scale-[102%] hover:shadow-md"
 					>
 						<!-- Poll Header -->
-						<div class="mb-3">
-							<h3 class="line-clamp-1 text-ellipsis font-bold">{poll.title}</h3>
+						<div class="space-y-1 border-b p-4 text-left">
+							<h3 class="line-clamp-2 text-ellipsis text-wrap font-bold">{poll.title}</h3>
 							{#if poll.description}
-								<p
-									class="text-muted-foreground wrap-break-word mt-1 line-clamp-2 text-ellipsis text-wrap text-sm"
-								>
+								<p class="text-muted-foreground line-clamp-2 text-ellipsis text-wrap text-sm">
 									{poll.description}
 								</p>
 							{/if}
 						</div>
 
-						<!-- Total Votes -->
-						<div class="text-muted-foreground mb-3 flex items-center gap-1.5 text-sm">
-							<div class="bg-muted-foreground rounded-full p-1">
-								<TrendingUp class="text-background size-3" />
-							</div>
-							Total votes: {poll.totalVotes}
-						</div>
-
 						<!-- Poll Options with Progress -->
-						<div class="space-y-2">
+						<div class="space-y-2 border-b p-4">
 							{#each poll.options as option}
 								{@const percentage = getPercentage(option.votesCount, poll.totalVotes)}
 								<div class="space-y-1">
-									<div class="flex items-center justify-between text-sm">
-										<span class="line-clamp-1 font-medium">{option.optionText}</span>
-										<div class="ml-2 flex flex-shrink-0 items-center gap-2">
+									<div class="flex items-center justify-between gap-2 text-sm">
+										<span class="line-clamp-1 text-ellipsis font-medium">{option.optionText}</span>
+										<div class="flex flex-shrink-0 items-center gap-2">
 											<span class="font-semibold">{option.votesCount}</span>
 											<span class="text-muted-foreground">({percentage}%)</span>
 										</div>
@@ -85,6 +75,14 @@
 									<Progress value={percentage} class="h-1.5" />
 								</div>
 							{/each}
+						</div>
+
+						<!-- Total Votes -->
+						<div class="text-muted-foreground flex items-center gap-1.5 p-4 text-sm">
+							<div class="bg-muted-foreground rounded-full p-1">
+								<TrendingUp class="text-background size-3" />
+							</div>
+							Total votes: {poll.totalVotes}
 						</div>
 					</div>
 				</a>
