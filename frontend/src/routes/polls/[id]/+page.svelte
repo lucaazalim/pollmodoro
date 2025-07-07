@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import ContentDisclaimer from '$lib/components/ContentDisclaimer.svelte';
+	import CreateYourOwnPoll from '$lib/components/CreateYourOwnPoll.svelte';
 	import ShareThisPoll from '$lib/components/ShareThisPoll.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
@@ -210,6 +212,8 @@
 		</div>
 
 		<ShareThisPoll pollTitle={poll.title} />
+		<CreateYourOwnPoll />
+		<ContentDisclaimer />
 	{:else}
 		<div class="py-12 text-center">
 			<h2 class="text-muted-foreground text-xl font-semibold">Poll not found</h2>
