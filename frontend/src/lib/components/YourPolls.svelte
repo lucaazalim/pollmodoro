@@ -48,7 +48,7 @@
 			{#each polls as poll}
 				<a href="/polls/{poll.id}" class="block">
 					<div
-						class="bg-card rounded-lg border shadow-sm transition-all hover:scale-[102%] hover:shadow-md"
+						class="bg-card hover:shadow-m flex h-full flex-col rounded-lg border shadow-sm transition-all hover:scale-[102%]"
 					>
 						<!-- Poll Header -->
 						<div class="space-y-1 border-b p-4 text-left">
@@ -61,7 +61,7 @@
 						</div>
 
 						<!-- Poll Options with Progress -->
-						<div class="space-y-2 border-b p-4">
+						<div class="grow space-y-2 border-b p-4">
 							{#each poll.options as option}
 								{@const percentage = getPercentage(option.votesCount, poll.totalVotes)}
 								<div class="space-y-1">
