@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import ShareThisPoll from '$lib/components/ShareThisPoll.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
 	import { Progress } from '$lib/components/ui/progress';
@@ -80,7 +81,7 @@
 	</title>
 </svelte:head>
 
-<div class="mx-auto max-w-3xl p-6">
+<div class="mx-auto max-w-3xl space-y-5 p-6">
 	{#if $pollStore.loading}
 		<div class="flex items-center justify-center py-12">
 			<div class="border-primary h-8 w-8 animate-spin rounded-full border-b-2"></div>
@@ -96,10 +97,10 @@
 
 		<div class="bg-card rounded-lg border shadow-sm">
 			<!-- Poll Header -->
-			<div class="border-b p-6">
-				<h1 class="mb-2 text-2xl font-bold">{poll.title}</h1>
+			<div class="space-y-3 border-b p-6">
+				<h1 class="text-2xl font-bold">{poll.title}</h1>
 				{#if poll.description}
-					<p class="text-muted-foreground mb-4">{poll.description}</p>
+					<p class="text-muted-foreground">{poll.description}</p>
 				{/if}
 
 				<div class="text-muted-foreground flex flex-wrap gap-4 text-sm">
@@ -208,15 +209,7 @@
 			</div>
 		</div>
 
-		<!-- Share Poll -->
-		<div class="mt-6 text-center">
-			<p class="text-muted-foreground mb-2 text-sm">Share this poll:</p>
-			<div class="flex justify-center">
-				<code class="bg-muted text-foreground rounded px-3 py-2 text-sm">
-					{window.location.href}
-				</code>
-			</div>
-		</div>
+		<ShareThisPoll pollTitle={poll.title} />
 	{:else}
 		<div class="py-12 text-center">
 			<h2 class="text-muted-foreground text-xl font-semibold">Poll not found</h2>
