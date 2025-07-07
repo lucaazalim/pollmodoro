@@ -4,14 +4,23 @@
 			Create, share, and analyze polls effortlessly. Get instant feedback from your audience.
 		</p>
 		<p>
-			Open source project •
+			Built with 🍅 by
+			<a
+				href="https://azal.im"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="text-primary hover:text-primary/80 underline"
+			>
+				Luca Azalim
+			</a>
+			• View on
 			<a
 				href="https://github.com/lucaazalim/pollmodoro"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="text-primary hover:text-primary/80 underline"
 			>
-				View on GitHub
+				GitHub
 			</a>
 		</p>
 	</div>
