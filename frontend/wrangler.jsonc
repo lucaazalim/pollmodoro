@@ -27,7 +27,7 @@
 	"vars": {
 		"PUBLIC_TRPC_URL": "http://localhost:8787/trpc",
 		"PUBLIC_WEBSOCKET_URL": "ws://localhost:8787/websocket",
-		"PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAABkRrcGkRXf88Sft"
+		"PUBLIC_TURNSTILE_SITE_KEY": "1x00000000000000000000AA"
 	},
 	"env": {
 		"production": {
