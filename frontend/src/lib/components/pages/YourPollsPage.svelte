@@ -45,7 +45,7 @@
 				</Button>
 			</div>
 		{:else}
-			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+			<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
 				{#each polls as poll}
 					<a href="/polls/{poll.id}" class="block">
 						<div
