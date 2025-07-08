@@ -2,11 +2,25 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import Header from '$lib/components/Header.svelte';
 	import { Toaster } from '$lib/components/ui/sonner';
-	import { onTurnstileLoadCallbackName } from '$lib/turnstile';
+	import { onTurnstileLoadCallbackName, setTurnstileContext } from '$lib/turnstile';
 	import { ModeWatcher } from 'mode-watcher';
+	import { onMount } from 'svelte';
 	import '../app.css';
 
 	let { children } = $props();
+
+	let turnstileScript = $state({
+		loaded: false
+	});
+
+	setTurnstileContext(turnstileScript);
+
+	onMount(() => {
+		window.onTurnstileLoad = () => {
+			console.log('Turnstile script loaded!');
+			turnstileScript.loaded = true;
+		};
+	});
 </script>
 
 <svelte:head>

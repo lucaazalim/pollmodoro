@@ -1,9 +1,14 @@
-import { env } from '$env/dynamic/public';
+import { getContext, setContext } from 'svelte';
 
 export {};
 
 export const onTurnstileLoadCallbackName = 'onTurnstileLoad';
 export const turnstileWidgetId = 'turnstile-widget';
+const turnstileContextKey = 'turnstile-script';
+
+type TurnstileContext = {
+	loaded: boolean;
+};
 
 declare global {
 	const turnstile: {
@@ -26,17 +31,10 @@ declare global {
 	}
 }
 
-export function renderTurnstileWidget(callback: (token: string) => void) {
-	window.onTurnstileLoad = () => {
-		turnstile.render(`#${turnstileWidgetId}`, {
-			sitekey: env.PUBLIC_TURNSTILE_SITE_KEY || '',
-			theme: 'auto',
-			size: 'flexible',
-			callback
-		});
-	};
+export function setTurnstileContext(context: TurnstileContext) {
+	setContext(turnstileContextKey, context);
 }
 
-export function resetTurnstileWidget() {
-	turnstile.reset(`#${turnstileWidgetId}`);
+export function getTurnstileContext(): TurnstileContext {
+	return getContext(turnstileContextKey);
 }

@@ -9,7 +9,6 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Progress } from '$lib/components/ui/progress';
 	import { pollStore, voteStore } from '$lib/stores';
-	import { resetTurnstileWidget } from '$lib/turnstile';
 	import { getPercentage } from '$lib/utils';
 	import { connectWebSocket } from '$lib/websocket';
 	import { Calendar, Check, TrendingUp } from '@lucide/svelte';
@@ -21,7 +20,9 @@
 	let selectedOptions: number[] = [];
 	let selectedOption: number | null = null;
 	let webSocket: WebSocket | null = null;
+
 	let turnstileToken: string | null = null;
+	let resetTurnstileWidget: () => void;
 
 	// Get poll ID from URL parameters
 	const pollId = page.params.id;
@@ -77,7 +78,6 @@
 			selectedOption = null;
 
 			// Reset Turnstile token
-			turnstileToken = null;
 			resetTurnstileWidget();
 
 			// Show success message
@@ -200,7 +200,7 @@
 				</div>
 
 				<div class="space-y-3 border-b p-6">
-					<TurnstileWidget bind:token={turnstileToken} />
+					<TurnstileWidget bind:token={turnstileToken} bind:reset={resetTurnstileWidget} />
 
 					<!-- Submit Vote Button -->
 					<div>
