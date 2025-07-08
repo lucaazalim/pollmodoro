@@ -25,7 +25,7 @@
 			}
 		});
 
-		console.log('Turnstile widget rendered!');
+		console.log('Turnstile widget rendered with sitekey: ' + env.PUBLIC_TURNSTILE_SITE_KEY);
 	});
 
 	reset = () => {

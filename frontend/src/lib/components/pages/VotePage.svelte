@@ -9,9 +9,9 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Progress } from '$lib/components/ui/progress';
 	import { pollStore, voteStore } from '$lib/stores';
-	import { getPercentage } from '$lib/utils';
+	import { cn, getPercentage } from '$lib/utils';
 	import { connectWebSocket } from '$lib/websocket';
-	import { Calendar, Check, TrendingUp } from '@lucide/svelte';
+	import { Calendar, Check, Loader2, TrendingUp } from '@lucide/svelte';
 	import { onDestroy } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import { fade } from 'svelte/transition';
@@ -150,13 +150,14 @@
 						<div class="space-y-2">
 							<!-- Vote Option -->
 							<Label
-								class="hover:bg-accent block w-full cursor-pointer rounded-lg border p-4 transition-colors {(
-									poll.allowMultipleOptions
-										? selectedOptions.includes(option.id)
-										: selectedOption === option.id
-								)
-									? 'border-primary bg-primary/5'
-									: 'border-border'}"
+								class={cn(
+									'hover:bg-accent block w-full cursor-pointer space-y-3 rounded-lg border p-4 transition-colors',
+									{
+										'border-primary bg-primary/5':
+											poll.allowMultipleOptions && selectedOptions.includes(option.id),
+										'border-border': !poll.allowMultipleOptions && selectedOption === option.id
+									}
+								)}
 							>
 								<div class="flex items-center justify-between gap-4">
 									<div class="flex flex-row items-center justify-between gap-3">
@@ -185,16 +186,14 @@
 									</div>
 
 									<div class="text-right">
-										<div class="text-lg font-bold">{option.votesCount}</div>
+										<div class="-mb-1 text-lg font-bold">{option.votesCount.toLocaleString()}</div>
 										<div class="text-muted-foreground text-sm">
 											{percentage}%
 										</div>
 									</div>
 								</div>
+								<Progress value={percentage} class="h-2" />
 							</Label>
-
-							<!-- Progress Bar -->
-							<Progress value={percentage} class="h-2" />
 						</div>
 					{/each}
 				</div>
@@ -213,10 +212,8 @@
 							size="lg"
 						>
 							{#if $voteStore.loading}
-								<div class="flex items-center justify-center">
-									<div
-										class="mr-2 size-4 animate-spin rounded-full border-b-2 border-current"
-									></div>
+								<div class="flex items-center justify-center gap-1.5">
+									<Loader2 class="text-primary-foreground size-4 animate-spin" />
 									Submitting Vote...
 								</div>
 							{:else}
