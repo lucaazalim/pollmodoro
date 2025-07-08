@@ -104,7 +104,8 @@ export const pollStore = (() => {
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Failed to fetch poll';
 			update((state) => ({ ...state, loading: false, error: errorMessage }));
-			throw error;
+			// Don't re-throw the error, let the component handle it through the store state
+			return null;
 		}
 	};
 

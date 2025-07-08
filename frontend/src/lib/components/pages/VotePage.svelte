@@ -15,6 +15,7 @@
 	import { onDestroy } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import { fade } from 'svelte/transition';
+	import PollNotFound from '../PollNotFound.svelte';
 	import TurnstileWidget from '../TurnstileWidget.svelte';
 
 	let selectedOptions: number[] = [];
@@ -32,11 +33,7 @@
 		selectedOptions = [];
 		selectedOption = null;
 
-		try {
-			pollStore.fetchPoll({ id: pollId });
-		} catch (error) {
-			toast.error('Failed to load poll. Please try again.');
-		}
+		pollStore.fetchPoll({ id: pollId });
 
 		if (browser) {
 			webSocket = connectWebSocket(pollId, webSocket);
@@ -95,17 +92,14 @@
 	</title>
 </svelte:head>
 
-<div class="mx-auto max-w-3xl p-6">
+<div class="mx-auto h-full max-w-3xl p-6">
 	{#if $pollStore.loading}
-		<div class="flex items-center justify-center py-12">
+		<div class="flex h-full items-center justify-center py-12">
 			<LoadSpinner />
 			<span class="text-muted-foreground ml-2">Loading poll...</span>
 		</div>
 	{:else if $pollStore.error}
-		<div class="bg-destructive/10 border-destructive/20 rounded-lg border p-6 text-center">
-			<h2 class="text-destructive mb-2 text-xl font-semibold">Error Loading Poll</h2>
-			<p class="text-destructive/80">{$pollStore.error}</p>
-		</div>
+		<PollNotFound />
 	{:else if $pollStore.data}
 		{@const poll = $pollStore.data}
 
