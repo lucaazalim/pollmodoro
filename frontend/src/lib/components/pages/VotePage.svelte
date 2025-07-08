@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { page } from '$app/state';
 	import ContentDisclaimer from '$lib/components/ContentDisclaimer.svelte';
 	import CreateYourOwnPoll from '$lib/components/CreateYourOwnPoll.svelte';
@@ -8,13 +9,14 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Progress } from '$lib/components/ui/progress';
 	import { pollStore, voteStore } from '$lib/stores';
-	import { renderTurnstileWidget, resetTurnstileWidget } from '$lib/turnstile';
+	import { resetTurnstileWidget } from '$lib/turnstile';
 	import { getPercentage } from '$lib/utils';
 	import { connectWebSocket } from '$lib/websocket';
 	import { Calendar, Check, TrendingUp } from '@lucide/svelte';
-	import { onDestroy, onMount } from 'svelte';
+	import { onDestroy } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import { fade } from 'svelte/transition';
+	import TurnstileWidget from '../TurnstileWidget.svelte';
 
 	let selectedOptions: number[] = [];
 	let selectedOption: number | null = null;
@@ -22,10 +24,10 @@
 	let turnstileToken: string | null = null;
 
 	// Get poll ID from URL parameters
-	$: pollId = page.params.id;
+	const pollId = page.params.id;
 
 	// Load poll and connect WebSocket
-	$: if (pollId) {
+	if (pollId) {
 		selectedOptions = [];
 		selectedOption = null;
 
@@ -35,7 +37,9 @@
 			toast.error('Failed to load poll. Please try again.');
 		}
 
-		webSocket = connectWebSocket(pollId, webSocket);
+		if (browser) {
+			webSocket = connectWebSocket(pollId, webSocket);
+		}
 	}
 
 	onDestroy(() => {
@@ -83,11 +87,6 @@
 			toast.error('Failed to submit vote. Please try again.');
 		}
 	}
-
-	// Render Turnstile widget on mount
-	onMount(() => {
-		renderTurnstileWidget((token) => (turnstileToken = token));
-	});
 </script>
 
 <svelte:head>
@@ -144,64 +143,64 @@
 				</div>
 
 				<!-- Poll Options -->
-				<div class="space-y-4 p-6">
-					<div class="space-y-4">
-						{#each poll.options as option}
-							{@const percentage = getPercentage(option.votesCount, poll.totalVotes)}
+				<div class="space-y-4 border-b p-6">
+					{#each poll.options as option}
+						{@const percentage = getPercentage(option.votesCount, poll.totalVotes)}
 
-							<div class="space-y-2">
-								<!-- Vote Option -->
-								<Label
-									class="hover:bg-accent block w-full cursor-pointer rounded-lg border p-4 transition-colors {(
-										poll.allowMultipleOptions
-											? selectedOptions.includes(option.id)
-											: selectedOption === option.id
-									)
-										? 'border-primary bg-primary/5'
-										: 'border-border'}"
-								>
-									<div class="flex items-center justify-between gap-4">
-										<div class="flex flex-row items-center justify-between gap-3">
-											<div>
-												{#if poll.allowMultipleOptions}
-													<input
-														type="checkbox"
-														value={option.id}
-														bind:group={selectedOptions}
-														class="accent-primary size-4"
-													/>
-												{:else}
-													<input
-														type="radio"
-														name="poll-option"
-														value={option.id}
-														bind:group={selectedOption}
-														class="accent-primary size-4"
-													/>
-												{/if}
-											</div>
-
-											<p class="wrap-anywhere font-medium/5 line-clamp-3 leading-snug">
-												{option.optionText}
-											</p>
+						<div class="space-y-2">
+							<!-- Vote Option -->
+							<Label
+								class="hover:bg-accent block w-full cursor-pointer rounded-lg border p-4 transition-colors {(
+									poll.allowMultipleOptions
+										? selectedOptions.includes(option.id)
+										: selectedOption === option.id
+								)
+									? 'border-primary bg-primary/5'
+									: 'border-border'}"
+							>
+								<div class="flex items-center justify-between gap-4">
+									<div class="flex flex-row items-center justify-between gap-3">
+										<div>
+											{#if poll.allowMultipleOptions}
+												<input
+													type="checkbox"
+													value={option.id}
+													bind:group={selectedOptions}
+													class="accent-primary size-4"
+												/>
+											{:else}
+												<input
+													type="radio"
+													name="poll-option"
+													value={option.id}
+													bind:group={selectedOption}
+													class="accent-primary size-4"
+												/>
+											{/if}
 										</div>
 
-										<div class="text-right">
-											<div class="text-lg font-bold">{option.votesCount}</div>
-											<div class="text-muted-foreground text-sm">
-												{percentage}%
-											</div>
+										<p class="wrap-anywhere font-medium/5 line-clamp-3 leading-snug">
+											{option.optionText}
+										</p>
+									</div>
+
+									<div class="text-right">
+										<div class="text-lg font-bold">{option.votesCount}</div>
+										<div class="text-muted-foreground text-sm">
+											{percentage}%
 										</div>
 									</div>
-								</Label>
+								</div>
+							</Label>
 
-								<!-- Progress Bar -->
-								<Progress value={percentage} class="h-2" />
-							</div>
-						{/each}
-					</div>
+							<!-- Progress Bar -->
+							<Progress value={percentage} class="h-2" />
+						</div>
+					{/each}
+				</div>
 
-					<div id="turnstile-widget" class="block flex-row"></div>
+				<div class="space-y-3 border-b p-6">
+					<TurnstileWidget bind:token={turnstileToken} />
 
 					<!-- Submit Vote Button -->
 					<div>

@@ -7,15 +7,14 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { localStore } from '$lib/localStore.svelte.js';
 	import { createPollStore } from '$lib/stores.js';
-	import { renderTurnstileWidget } from '$lib/turnstile.js';
 	import { Trash } from '@lucide/svelte';
-	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import { sineInOut } from 'svelte/easing';
 	import { fade } from 'svelte/transition';
 	import { defaults, superForm } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import z from 'zod';
+	import TurnstileWidget from '../TurnstileWidget.svelte';
 
 	const createPollSchema = z.object({
 		title: z.string().min(1, 'Title is required').max(200, 'Title too long'),
@@ -96,11 +95,6 @@
 			$formData.options = $formData.options.filter((_: string, i: number) => i !== index);
 		}
 	}
-
-	// Render Turnstile widget on mount
-	onMount(() => {
-		renderTurnstileWidget((token) => (turnstileToken = token));
-	});
 </script>
 
 <svelte:head>
@@ -208,7 +202,7 @@
 			<Form.FieldErrors />
 		</Form.Field>
 
-		<div id="turnstile-widget" class="block flex-row"></div>
+		<TurnstileWidget bind:token={turnstileToken}/>
 
 		<div>
 			<Form.Button disabled={$createPollStore.loading} class="w-full" size="lg">
