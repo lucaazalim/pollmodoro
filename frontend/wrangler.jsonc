@@ -26,13 +26,15 @@
 	],
 	"vars": {
 		"PUBLIC_TRPC_URL": "http://localhost:8787/trpc",
-		"PUBLIC_WEBSOCKET_URL": "ws://localhost:8787/websocket"
+		"PUBLIC_WEBSOCKET_URL": "ws://localhost:8787/websocket",
+		"PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAABkRrcGkRXf88Sft"
 	},
 	"env": {
 		"production": {
 			"vars": {
 				"PUBLIC_TRPC_URL": "https://api.pollmodoro.com/trpc",
-				"PUBLIC_WEBSOCKET_URL": "wss://api.pollmodoro.com/websocket"
+				"PUBLIC_WEBSOCKET_URL": "wss://api.pollmodoro.com/websocket",
+				"PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAABkRrcGkRXf88Sft"
 			}
 		}
 	}

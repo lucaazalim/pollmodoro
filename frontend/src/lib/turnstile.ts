@@ -1,3 +1,5 @@
+import { env } from '$env/dynamic/public';
+
 export {};
 
 export const onTurnstileLoadCallbackName = 'onTurnstileLoad';
@@ -25,7 +27,7 @@ declare global {
 export function renderTurnstileWidget(callback: (token: string) => void) {
 	window.onTurnstileLoad = () => {
 		turnstile.render('#turnstile-widget', {
-			sitekey: '0x4AAAAAABkRrcGkRXf88Sft',
+			sitekey: env.PUBLIC_TURNSTILE_SITE_KEY || '',
 			theme: 'auto',
 			size: 'flexible',
 			callback
