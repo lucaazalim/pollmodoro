@@ -40,8 +40,13 @@
 
 		<div class="flex flex-col gap-4 sm:flex-row sm:justify-center">
 			<CreatePollButton class="text-lg font-medium" size="lg" />
-			<Button href="#features" variant="outline" class="text-lg font-medium" size="lg">
-				See Features
+			<Button
+				href="/polls/hMRwidAt-KmMdCIjITyfd"
+				variant="outline"
+				class="text-lg font-medium"
+				size="lg"
+			>
+				Check a demo poll
 			</Button>
 		</div>
 	</div>
@@ -112,7 +117,9 @@
 					<Shield class="h-6 w-6 text-red-600 dark:text-red-400" />
 				</div>
 				<h4 class="text-foreground mb-2 font-semibold">Secure & Private</h4>
-				<p class="text-muted-foreground text-sm">Anonymous voting with bot protection and data security</p>
+				<p class="text-muted-foreground text-sm">
+					Anonymous voting with bot protection and data security
+				</p>
 			</div>
 
 			<div class="text-center">
