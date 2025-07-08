@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { dev } from '$app/environment';
 	import Footer from '$lib/components/Footer.svelte';
 	import Header from '$lib/components/Header.svelte';
 	import { Toaster } from '$lib/components/ui/sonner';
@@ -29,15 +30,18 @@
 	<link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
 	<link rel="manifest" href="/site.webmanifest" />
 	<script
-		defer
-		src="https://cloud.umami.is/script.js"
-		data-website-id="de08e990-bcfa-4051-a4c0-47bba8d521c8"
-	></script>
-	<script
 		src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload={onTurnstileLoadCallbackName}"
 		async
 		defer
 	></script>
+
+	{#if !dev}
+		<script
+			defer
+			src="https://cloud.umami.is/script.js"
+			data-website-id="de08e990-bcfa-4051-a4c0-47bba8d521c8"
+		></script>
+	{/if}
 </svelte:head>
 
 <svelte:window />
