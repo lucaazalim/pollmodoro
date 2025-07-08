@@ -34,11 +34,13 @@
 		data-website-id="de08e990-bcfa-4051-a4c0-47bba8d521c8"
 	></script>
 	<script
-		src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload={onTurnstileLoadCallbackName}"
+		src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload={onTurnstileLoadCallbackName}"
 		async
 		defer
 	></script>
 </svelte:head>
+
+<svelte:window />
 
 <div class="justify-betweeen bg-background flex min-h-screen flex-col">
 	<Header />
