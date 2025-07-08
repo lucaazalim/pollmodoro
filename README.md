@@ -12,9 +12,37 @@ Pollmodoro leverages CloudFlare's edge computing infrastructure to deliver a fas
 
 ### Technology Stack
 
-- **Frontend**: SvelteKit with TypeScript, Tailwind CSS and [shadcn-svelte](https://shadcn-svelte.com/) components.
-- **Backend**: CloudFlare Workers using tRPC for type-safe API calls.
-- **Security**: CloudFlare Turnstile for bot protection.
+#### Frontend
+
+- **[SvelteKit](https://kit.svelte.dev/)** - Full-stack web framework with server-side rendering
+- **[Svelte 5](https://svelte.dev/)** - Reactive JavaScript framework with compiled components
+- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript development
+- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[shadcn-svelte](https://shadcn-svelte.com/)** - Beautifully designed components built with Radix UI and Tailwind CSS
+- **[Bits UI](https://bits-ui.com/)** - Unstyled, accessible component primitives for Svelte
+- **[Lucide Svelte](https://lucide.dev/)** - Beautiful & consistent icon toolkit
+- **[Vite](https://vitejs.dev/)** - Fast build tool and development server
+
+#### Backend
+
+- **[Cloudflare Workers](https://workers.cloudflare.com/)** - Serverless compute platform at the edge
+- **[Cloudflare Durable Objects](https://developers.cloudflare.com/durable-objects/)** - Stateful objects with strong consistency
+- **[tRPC](https://trpc.io/)** - End-to-end typesafe APIs
+- **[Drizzle ORM](https://orm.drizzle.team/)** - TypeScript ORM with zero dependencies
+- **[SQLite](https://sqlite.org/)** - Embedded database for Durable Objects
+- **[Zod](https://zod.dev/)** - TypeScript-first schema validation
+
+#### Development & Deployment
+
+- **[Wrangler](https://developers.cloudflare.com/workers/wrangler/)** - Cloudflare's command-line tool for development and deployment
+- **[ESLint](https://eslint.org/)** - JavaScript/TypeScript linting
+- **[Prettier](https://prettier.io/)** - Code formatting
+- **[Drizzle Kit](https://orm.drizzle.team/kit-docs/overview)** - Database migrations and introspection toolkit
+
+#### Security
+
+- **[Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/)** - Privacy-preserving CAPTCHA alternative
+- **[nanoid](https://github.com/ai/nanoid)** - URL-safe unique string ID generator
 
 ### Architecture Overview
 
