@@ -44,6 +44,8 @@ Pollmodoro leverages CloudFlare's edge computing infrastructure to deliver a fas
 - **[Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/)** - Privacy-preserving CAPTCHA alternative
 - **[nanoid](https://github.com/ai/nanoid)** - URL-safe unique string ID generator
 
+---
+
 ### Architecture Overview
 
 1. **Request Routing**: When a user creates a poll, their browser sends a tRPC request to a CloudFlare Worker deployed at CloudFlare's global edge network.
@@ -61,6 +63,8 @@ Pollmodoro leverages CloudFlare's edge computing infrastructure to deliver a fas
 5. **Real-Time Updates**: The Durable Object maintains WebSocket connections for real-time vote updates, broadcasting results to all connected clients instantly.
 
 6. **Global Coordination**: Since each poll has a globally unique Durable Object identifier, users worldwide can vote on the same poll while maintaining data consistency and coordination.
+
+---
 
 ### Geographic Considerations
 
