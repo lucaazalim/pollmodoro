@@ -85,7 +85,7 @@
 				<h3 class="text-foreground mb-3 text-xl font-semibold">Universal Sharing</h3>
 				<p class="text-muted-foreground leading-relaxed">
 					Share anywhere with a simple link. Works perfectly on mobile, desktop, and all social
-					platforms.
+					platforms with built-in spam protection.
 				</p>
 			</div>
 		</div>
@@ -112,7 +112,7 @@
 					<Shield class="h-6 w-6 text-red-600 dark:text-red-400" />
 				</div>
 				<h4 class="text-foreground mb-2 font-semibold">Secure & Private</h4>
-				<p class="text-muted-foreground text-sm">Anonymous voting with data protection</p>
+				<p class="text-muted-foreground text-sm">Anonymous voting with bot protection and data security</p>
 			</div>
 
 			<div class="text-center">
