@@ -1,5 +1,5 @@
 <script>
-	import PollPage from '$lib/components/pages/PollPage.svelte';
+	import VotePage from '$lib/components/pages/VotePage.svelte';
 </script>
 
-<PollPage />
+<VotePage />

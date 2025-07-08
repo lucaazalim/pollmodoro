@@ -3,6 +3,7 @@ import { env } from '$env/dynamic/public';
 export {};
 
 export const onTurnstileLoadCallbackName = 'onTurnstileLoad';
+export const turnstileWidgetId = 'turnstile-widget';
 
 declare global {
 	const turnstile: {
@@ -10,11 +11,12 @@ declare global {
 			selector: string,
 			options: {
 				sitekey: string;
-				theme: 'light' | 'dark' | 'auto';
-				size: 'normal' | 'compact' | 'flexible';
+				theme?: 'light' | 'dark' | 'auto';
+				size?: 'normal' | 'compact' | 'flexible';
 				callback: (token: string) => void;
 			}
 		) => void;
+		reset: (widgetId: string) => void;
 	};
 }
 
@@ -26,11 +28,15 @@ declare global {
 
 export function renderTurnstileWidget(callback: (token: string) => void) {
 	window.onTurnstileLoad = () => {
-		turnstile.render('#turnstile-widget', {
+		turnstile.render(`#${turnstileWidgetId}`, {
 			sitekey: env.PUBLIC_TURNSTILE_SITE_KEY || '',
 			theme: 'auto',
 			size: 'flexible',
 			callback
 		});
 	};
+}
+
+export function resetTurnstileWidget() {
+	turnstile.reset(`#${turnstileWidgetId}`);
 }

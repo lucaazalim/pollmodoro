@@ -8,7 +8,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Progress } from '$lib/components/ui/progress';
 	import { pollStore, voteStore } from '$lib/stores';
-	import { renderTurnstileWidget } from '$lib/turnstile';
+	import { renderTurnstileWidget, resetTurnstileWidget } from '$lib/turnstile';
 	import { getPercentage } from '$lib/utils';
 	import { connectWebSocket } from '$lib/websocket';
 	import { Calendar, Check, TrendingUp } from '@lucide/svelte';
@@ -68,15 +68,18 @@
 				turnstileToken: turnstileToken || ''
 			});
 
-			// Show success message
-			toast.success('Your vote has been successfully submitted!');
-
 			// Clear selections after successful vote
 			selectedOptions = [];
 			selectedOption = null;
 
-			// Poll data will be updated automatically via WebSocket
+			// Reset Turnstile token
+			turnstileToken = null;
+			resetTurnstileWidget();
+
+			// Show success message
+			toast.success('Your vote has been successfully submitted!');
 		} catch (error) {
+			console.error(error);
 			toast.error('Failed to submit vote. Please try again.');
 		}
 	}
