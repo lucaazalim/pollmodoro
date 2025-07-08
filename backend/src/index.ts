@@ -2,7 +2,7 @@ import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { OnErrorFunction } from "@trpc/server/http";
 import { PollDurableObject } from "./poll-durable-object";
 import { AppRouter, appRouter } from "./router";
-import { TRPCContext } from "./types";
+import { TRPCContext } from "./utils/types";
 
 export { PollDurableObject };
 

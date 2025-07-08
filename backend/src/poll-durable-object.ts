@@ -3,15 +3,10 @@ import { count, eq, getTableColumns } from "drizzle-orm";
 import { drizzle, DrizzleSqliteDODatabase } from "drizzle-orm/durable-sqlite";
 import { migrate } from "drizzle-orm/durable-sqlite/migrator";
 import migrations from "../drizzle/migrations";
-import { Result } from "./result";
-import { poll, pollOptions, votes } from "./schema";
-import {
-  PollWithOptions,
-  PollWithResults,
-  Vote,
-  VoteInsert,
-  WebSocketMessage,
-} from "./types";
+import { poll, pollOptions, votes } from "./db/schema";
+import { PollWithOptions, PollWithResults, Vote, VoteInsert } from "./db/types";
+import { Result } from "./utils/result";
+import { WebSocketMessage } from "./utils/types";
 
 export class PollDurableObject extends DurableObject {
   storage: DurableObjectStorage;
