@@ -1,6 +1,6 @@
 <script>
 	import CreatePollButton from './CreatePollButton.svelte';
-	import ThemeSwitcher from './ThemeSwitcher.svelte';
+	import ThemeSwitcherButton from './ThemeSwitcherButton.svelte';
 	import YourPollsButton from './YourPollsButton.svelte';
 </script>
 
@@ -14,7 +14,7 @@
 				</div>
 			</a>
 			<div class="flex flex-row items-center space-x-4">
-				<ThemeSwitcher />
+				<ThemeSwitcherButton />
 				<YourPollsButton />
 				<CreatePollButton />
 			</div>
