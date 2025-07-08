@@ -14,6 +14,7 @@ Pollmodoro leverages CloudFlare's edge computing infrastructure to deliver a fas
 
 - **Frontend**: SvelteKit with TypeScript, Tailwind CSS and [shadcn-svelte](https://shadcn-svelte.com/) components.
 - **Backend**: CloudFlare Workers using tRPC for type-safe API calls.
+- **Security**: CloudFlare Turnstile for bot protection.
 
 ### Architecture Overview
 
