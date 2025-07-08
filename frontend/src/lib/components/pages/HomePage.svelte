@@ -39,7 +39,7 @@
 		</p>
 
 		<div class="flex flex-col gap-4 sm:flex-row sm:justify-center">
-			<CreatePollButton class="text-lg font-medium shadow-lg hover:shadow-xl" size="lg" />
+			<CreatePollButton class="text-lg font-medium" size="lg" />
 			<Button href="#features" variant="outline" class="text-lg font-medium" size="lg">
 				See Features
 			</Button>
@@ -284,9 +284,7 @@
 			<p class="text-muted-foreground mb-8 text-xl">
 				Join other users who trust our platform for their polling needs. No registration required.
 			</p>
-			<Button href="/create" class="text-lg font-medium shadow-lg hover:shadow-xl" size="lg">
-				Create Your Poll Now
-			</Button>
+			<CreatePollButton class="text-lg font-medium" size="lg" />
 		</div>
 	</div>
 </div>
