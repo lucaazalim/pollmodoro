@@ -5,12 +5,12 @@
 </script>
 
 <nav class="bg-card border-b shadow-sm">
-	<div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+	<div class="mx-auto max-w-5xl px-4">
 		<div class="flex items-center justify-between py-4">
 			<a href="/">
-				<div class="flex items-center">
-					<img src="/pollmodoro.png" alt="Pollmodoro Logo" class="mr-2 h-8 w-8" />
-					<span class="text-foreground font-serif text-xl font-bold">Pollmodoro</span>
+				<div class="flex items-center gap-2">
+					<img src="/pollmodoro.png" alt="Pollmodoro Logo" class="size-8" />
+					<span class="text-foreground font-serif text-xl font-bold max-sm:hidden">Pollmodoro</span>
 				</div>
 			</a>
 			<div class="flex flex-row items-center space-x-4">

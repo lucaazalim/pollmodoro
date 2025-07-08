@@ -29,7 +29,7 @@
 	/>
 </svelte:head>
 
-<div class="mx-auto max-w-5xl p-6 text-center" in:fade={{ duration: 500, easing: sineInOut }}>
+<div class="mx-auto max-w-5xl px-6 text-center" in:fade={{ duration: 500, easing: sineInOut }}>
 	<!-- Hero Section -->
 	<div class="py-16">
 		<h1 class="text-foreground mb-6 text-5xl font-bold">Get Instant Feedback with Pollmodoro</h1>
