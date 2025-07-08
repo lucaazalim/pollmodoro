@@ -42,7 +42,7 @@
 
 <svelte:window />
 
-<div class="justify-betweeen bg-background flex min-h-screen flex-col">
+<div class="justify-betweeen bg-background flex h-screen flex-col">
 	<Header />
 	<main class="grow py-8">
 		{@render children()}
