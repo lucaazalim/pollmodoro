@@ -1,7 +1,10 @@
+import { TRPCError } from "@trpc/server";
 import { nanoid } from "nanoid";
 import { z } from "zod";
+import { PollWithOptions } from "../db/types";
 import { procedure } from "../trpc";
 import { unwrapResult } from "../utils/result";
+import { validateTurnstileToken } from "../utils/turnstile";
 
 const createPollSchema = z.object({
   title: z.string().min(1, "Title is required").max(200, "Title too long"),
@@ -20,7 +23,19 @@ const createPollSchema = z.object({
 
 export const createPoll = procedure
   .input(createPollSchema)
-  .mutation(async ({ input, ctx }) => {
+  .mutation(async ({ input, ctx }): Promise<PollWithOptions> => {
+    const turnstileResult = await validateTurnstileToken(
+      input.turnstileToken,
+      ctx
+    );
+
+    if (!turnstileResult.success) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Invalid Turnstile token. Please try again.",
+      });
+    }
+
     const id = nanoid();
     const durableObjectId = ctx.env.POLL_DURABLE_OBJECT.idFromName(id);
     const stub = ctx.env.POLL_DURABLE_OBJECT.get(durableObjectId);

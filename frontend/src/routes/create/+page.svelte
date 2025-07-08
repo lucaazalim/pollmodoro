@@ -7,7 +7,9 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { localStore } from '$lib/localStore.svelte.js';
 	import { createPollStore } from '$lib/stores.js';
+	import { renderTurnstileWidget } from '$lib/turnstile.js';
 	import { Trash } from '@lucide/svelte';
+	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import { sineInOut } from 'svelte/easing';
 	import { fade } from 'svelte/transition';
@@ -16,6 +18,7 @@
 	import { createPollSchema, type CreatePollSchema } from './schema.js';
 
 	let savedPolls = localStore('polls', [] as string[]);
+	let turnstileToken: string | null = null;
 
 	interface Props {
 		data?: {
@@ -37,9 +40,14 @@
 		{
 			SPA: true,
 			validators: zod(createPollSchema),
-			async onUpdate({ form }) {
+			async onUpdate({ form, cancel }) {
 				if (!form.valid) {
 					toast.error('Please fix the form errors before submitting.');
+					return;
+				}
+
+				if (!turnstileToken) {
+					toast.error('Please complete the captcha before submitting.');
 					return;
 				}
 
@@ -49,7 +57,8 @@
 						description: form.data.description || undefined,
 						options: form.data.options.filter((opt: string) => opt.trim()),
 						allowMultipleOptions: form.data.allowMultipleOptions,
-						pollType: 'multiple_choice' as const
+						pollType: 'multiple_choice' as const,
+						turnstileToken: turnstileToken || ''
 					});
 
 					toast.success('Poll created successfully!');
@@ -61,6 +70,7 @@
 					await goto(`/polls/${createdPoll.id}`);
 				} catch (error) {
 					toast.error('Failed to create poll. Please try again.');
+					cancel(); // Prevent form reset on error
 				}
 			}
 		}
@@ -81,6 +91,11 @@
 			$formData.options = $formData.options.filter((_: string, i: number) => i !== index);
 		}
 	}
+
+	// Render Turnstile widget on mount
+	onMount(() => {
+		renderTurnstileWidget((token) => (turnstileToken = token));
+	});
 </script>
 
 <svelte:head>
@@ -148,6 +163,7 @@
 										type="button"
 										variant="destructive"
 										size="lg"
+										class="px-3"
 										onclick={() => removeOption(index)}
 									>
 										<Trash />
@@ -187,7 +203,9 @@
 			<Form.FieldErrors />
 		</Form.Field>
 
-		<div class="pt-4">
+		<div id="turnstile-widget" class="block flex-row"></div>
+
+		<div>
 			<Form.Button disabled={$createPollStore.loading} class="w-full" size="lg">
 				{$createPollStore.loading ? 'Creating Poll...' : 'Create Poll'}
 			</Form.Button>

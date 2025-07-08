@@ -8,16 +8,18 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Progress } from '$lib/components/ui/progress';
 	import { pollStore, voteStore } from '$lib/stores';
+	import { renderTurnstileWidget } from '$lib/turnstile';
 	import { getPercentage } from '$lib/utils';
 	import { connectWebSocket } from '$lib/websocket';
 	import { Calendar, Check, TrendingUp } from '@lucide/svelte';
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import { fade } from 'svelte/transition';
 
 	let selectedOptions: number[] = [];
 	let selectedOption: number | null = null;
 	let webSocket: WebSocket | null = null;
+	let turnstileToken: string | null = null;
 
 	// Get poll ID from URL parameters
 	$: pollId = page.params.id;
@@ -43,10 +45,14 @@
 	});
 
 	async function handleVote() {
-		if (!pollId) return;
+		if (!turnstileToken) {
+			toast.error('Please complete the captcha before submitting your vote.');
+			return;
+		}
 
 		// Get the option IDs to vote for
 		let optionIds: number[] = [];
+
 		if ($pollStore.data?.allowMultipleOptions) {
 			optionIds = selectedOptions;
 		} else if (selectedOption !== null) {
@@ -58,7 +64,8 @@
 		try {
 			await voteStore.vote({
 				pollId,
-				optionIds
+				optionIds,
+				turnstileToken: turnstileToken || ''
 			});
 
 			// Show success message
@@ -73,6 +80,11 @@
 			toast.error('Failed to submit vote. Please try again.');
 		}
 	}
+
+	// Render Turnstile widget on mount
+	onMount(() => {
+		renderTurnstileWidget((token) => (turnstileToken = token));
+	});
 </script>
 
 <svelte:head>
@@ -129,7 +141,7 @@
 				</div>
 
 				<!-- Poll Options -->
-				<div class="p-6">
+				<div class="space-y-4 p-6">
 					<div class="space-y-4">
 						{#each poll.options as option}
 							{@const percentage = getPercentage(option.votesCount, poll.totalVotes)}
@@ -186,8 +198,10 @@
 						{/each}
 					</div>
 
+					<div id="turnstile-widget" class="block flex-row"></div>
+
 					<!-- Submit Vote Button -->
-					<div class="mt-6">
+					<div>
 						<Button
 							onclick={handleVote}
 							disabled={(poll.allowMultipleOptions

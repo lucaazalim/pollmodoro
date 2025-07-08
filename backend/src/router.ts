@@ -3,7 +3,6 @@ import { router } from "./trpc";
 
 export type AppRouter = typeof appRouter;
 
-// Define the tRPC router
 export const appRouter = router({
   createPoll,
   createVote,

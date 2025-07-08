@@ -1,5 +1,5 @@
 import { env } from '$env/dynamic/public';
-import type { PollWithResults, WebSocketMessage } from '../../../backend/src/types';
+import type { PollWithResults, WebSocketMessage } from '../../../backend/src/db/types';
 import { pollStore } from './stores';
 
 const webSocketUrl = env.PUBLIC_WEBSOCKET_URL || 'ws://localhost:8787/websocket';

@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { unwrapResult } from "../utils/result";
+import { PollWithResults } from "../db/types";
 import { procedure } from "../trpc";
+import { unwrapResult } from "../utils/result";
 
 const getPollSchema = z.object({
   id: z.string().min(1, "Poll ID is required"),
@@ -8,7 +9,7 @@ const getPollSchema = z.object({
 
 export const getPoll = procedure
   .input(getPollSchema)
-  .query(async ({ input, ctx }) => {
+  .query(async ({ input, ctx }): Promise<PollWithResults> => {
     const pollId = input.id;
     const id = ctx.env.POLL_DURABLE_OBJECT.idFromName(pollId);
     const stub = ctx.env.POLL_DURABLE_OBJECT.get(id);

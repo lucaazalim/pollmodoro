@@ -2,6 +2,7 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import Header from '$lib/components/Header.svelte';
 	import { Toaster } from '$lib/components/ui/sonner';
+	import { onTurnstileLoadCallbackName } from '$lib/turnstile';
 	import { ModeWatcher } from 'mode-watcher';
 	import '../app.css';
 
@@ -17,6 +18,11 @@
 		defer
 		src="https://cloud.umami.is/script.js"
 		data-website-id="de08e990-bcfa-4051-a4c0-47bba8d521c8"
+	></script>
+	<script
+		src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload={onTurnstileLoadCallbackName}"
+		async
+		defer
 	></script>
 </svelte:head>
 
