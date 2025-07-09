@@ -3,8 +3,8 @@ import { z, type ZodSchema } from 'zod';
 
 export class LocalStore<T> {
 	private value = $state<T>() as T;
-	key: string;
-	schema: ZodSchema<T>;
+	private key: string;
+	private schema: ZodSchema<T>;
 
 	constructor(key: string, value: T, schema?: ZodSchema<T>) {
 		this.key = key;
@@ -46,7 +46,7 @@ export class LocalStore<T> {
 			throw new Error(`Invalid value for local store "${this.key}": ${parsed.error.message}`);
 		}
 
-		this.value = value;
+		this.value = parsed.data;
 	}
 }
 

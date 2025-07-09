@@ -69,7 +69,6 @@
 
 					// Save poll ID to local storage
 					savedPolls.set([...savedPolls.get(), createdPoll.id].slice(-9));
-					savedPolls.value = [...savedPolls.value, createdPoll.id].slice(-9);
 
 					// Redirect to the created poll
 					await goto(`/polls/${createdPoll.id}`);
@@ -203,7 +202,7 @@
 			<Form.FieldErrors />
 		</Form.Field>
 
-		<TurnstileWidget bind:token={turnstileToken}/>
+		<TurnstileWidget bind:token={turnstileToken} />
 
 		<div>
 			<Form.Button disabled={$createPollStore.loading} class="w-full" size="lg">

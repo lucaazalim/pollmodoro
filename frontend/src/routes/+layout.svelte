@@ -17,6 +17,7 @@
 	setTurnstileContext(turnstileScript);
 
 	onMount(() => {
+		console.log('Mounting layout...');
 		window.onTurnstileLoad = () => {
 			console.log('Turnstile script loaded!');
 			turnstileScript.loaded = true;
