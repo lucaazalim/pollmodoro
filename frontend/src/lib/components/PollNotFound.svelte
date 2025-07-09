@@ -1,5 +1,4 @@
 <script>
-	import { pollStore } from '$lib/stores';
 	import { Home } from '@lucide/svelte';
 	import { fade } from 'svelte/transition';
 	import CreatePollButton from './CreatePollButton.svelte';
@@ -12,7 +11,7 @@
 >
 	<div class="mx-auto max-w-md">
 		<div class="mb-8">
-			<h2 class="text-foreground mt-4 text-2xl font-semibold">{$pollStore.error}</h2>
+			<h2 class="text-foreground mt-4 text-2xl font-semibold">Poll Not Found</h2>
 			<p class="text-foreground/80 mt-2">
 				This poll may not exist or has been removed. Please check the URL or try again later.
 			</p>

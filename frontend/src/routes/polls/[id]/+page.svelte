@@ -5,4 +5,4 @@
 	let { data }: PageProps = $props();
 </script>
 
-<VotePage poll={data} />
+<VotePage {...data} />

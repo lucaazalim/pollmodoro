@@ -2,7 +2,6 @@
 	import { browser } from '$app/environment';
 	import ContentDisclaimer from '$lib/components/ContentDisclaimer.svelte';
 	import CreateYourOwnPoll from '$lib/components/CreateYourOwnPoll.svelte';
-	import LoadSpinner from '$lib/components/LoadSpinner.svelte';
 	import ShareThisPoll from '$lib/components/ShareThisPoll.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
@@ -18,28 +17,36 @@
 	import TurnstileWidget from '../TurnstileWidget.svelte';
 
 	type Props = {
-		poll: GetPollOutput;
+		poll: GetPollOutput | null;
 	};
 
 	let { poll }: Props = $props();
 
-	if (!poll) {
-		throw new Error('Poll data is required');
+	if (poll) {
+		pollStore.updatePollData(poll);
 	}
 
-	pollStore.updatePollData(poll);
-
-	const pollId = poll.id;
+	let webSocket: WebSocket | undefined = undefined;
 
 	let selectedOptions: number[] = $state([]);
 	let selectedOption: number | undefined = $state();
-	let webSocket: WebSocket | undefined = undefined;
 
 	let turnstileToken: string | null = $state(null);
 	let resetTurnstileWidget: (() => void) | undefined = $state();
 
-	if (browser) {
-		webSocket = connectWebSocket(pollId, webSocket);
+	let submitButtonDisabled = $derived.by(() => {
+		if (!poll) return true;
+
+		const noMultiple = poll.allowMultipleOptions && selectedOptions.length === 0;
+		const noSingle = !poll.allowMultipleOptions && !selectedOption;
+		const isLoading = $voteStore.loading;
+		const noTurstileToken = !turnstileToken;
+
+		return noMultiple || noSingle || isLoading || noTurstileToken;
+	});
+
+	if (browser && poll) {
+		webSocket = connectWebSocket(poll.id, webSocket);
 	}
 
 	onDestroy(() => {
@@ -49,6 +56,10 @@
 	});
 
 	async function handleVote() {
+		if (!poll) {
+			return;
+		}
+
 		if (!turnstileToken) {
 			toast.error('Please complete the captcha before submitting your vote.');
 			return;
@@ -66,7 +77,7 @@
 
 		try {
 			await voteStore.vote({
-				pollId,
+				pollId: poll.id,
 				optionIds,
 				turnstileToken: turnstileToken || ''
 			});
@@ -94,14 +105,9 @@
 </svelte:head>
 
 <div class="mx-auto h-full max-w-3xl p-6">
-	{#if $pollStore.loading}
-		<div class="flex h-full items-center justify-center py-12">
-			<LoadSpinner />
-			<span class="text-muted-foreground ml-2">Loading poll...</span>
-		</div>
-	{:else if $pollStore.error}
+	{#if $pollStore.error || !$pollStore.data}
 		<PollNotFound />
-	{:else if $pollStore.data}
+	{:else}
 		{@const poll = $pollStore.data}
 
 		<div in:fade={{ duration: 300 }} class="space-y-5">
@@ -198,14 +204,7 @@
 
 					<!-- Submit Vote Button -->
 					<div>
-						<Button
-							onclick={handleVote}
-							disabled={(poll.allowMultipleOptions
-								? selectedOptions.length === 0
-								: !selectedOption) || $voteStore.loading}
-							class="w-full"
-							size="lg"
-						>
+						<Button onclick={handleVote} disabled={submitButtonDisabled} class="w-full" size="lg">
 							{#if $voteStore.loading}
 								<div class="flex items-center justify-center gap-1.5">
 									<Loader2 class="text-primary-foreground size-4 animate-spin" />
@@ -225,14 +224,6 @@
 			<ShareThisPoll pollTitle={poll.title} />
 			<CreateYourOwnPoll />
 			<ContentDisclaimer />
-		</div>
-	{:else}
-		<div class="py-12 text-center">
-			<h2 class="text-muted-foreground text-xl font-semibold">Poll not found</h2>
-			<p class="text-muted-foreground mt-2">
-				The poll you're looking for doesn't exist or has been removed.
-			</p>
-			<Button href="/create" class="mt-4">Create a New Poll</Button>
 		</div>
 	{/if}
 </div>
