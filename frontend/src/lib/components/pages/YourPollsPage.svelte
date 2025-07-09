@@ -12,12 +12,12 @@
 	let pollIds = localStore('polls', [] as string[]);
 	let polls: GetPollOutput[] | undefined = undefined;
 
-	$: Promise.all(
-		pollIds.value.map(async (id) => {
+	Promise.all(
+		pollIds.get().map(async (id) => {
 			return pollStore.fetchPoll({ id });
 		})
 	).then((fetchedPolls) => {
-		polls = fetchedPolls;
+		polls = fetchedPolls.filter((poll) => !!poll);
 	});
 </script>
 

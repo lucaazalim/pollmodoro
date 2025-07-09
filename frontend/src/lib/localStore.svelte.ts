@@ -1,32 +1,55 @@
 import { browser } from '$app/environment';
+import { z, type ZodSchema } from 'zod';
 
 export class LocalStore<T> {
-	value = $state<T>() as T;
-	key = '';
+	private value = $state<T>() as T;
+	key: string;
+	schema: ZodSchema<T>;
 
-	constructor(key: string, value: T) {
+	constructor(key: string, value: T, schema?: ZodSchema<T>) {
 		this.key = key;
 		this.value = value;
+		this.schema = schema ?? z.any();
 
 		if (browser) {
 			const item = localStorage.getItem(key);
-			if (item) this.value = this.deserialize(item);
+
+			if (item) {
+				try {
+					const parsed = z
+						.string()
+						.transform((str) => JSON.parse(str))
+						.pipe(this.schema)
+						.parse(item);
+
+					this.value = parsed;
+				} catch (error) {
+					console.error(error);
+					localStorage.removeItem(key);
+				}
+			}
 		}
 
 		$effect(() => {
-			localStorage.setItem(this.key, this.serialize(this.value));
+			localStorage.setItem(this.key, JSON.stringify(this.value));
 		});
 	}
 
-	serialize(value: T): string {
-		return JSON.stringify(value);
+	get() {
+		return this.value;
 	}
 
-	deserialize(item: string): T {
-		return JSON.parse(item);
+	set(value: T) {
+		const parsed = this.schema.safeParse(value);
+
+		if (!parsed.success) {
+			throw new Error(`Invalid value for local store "${this.key}": ${parsed.error.message}`);
+		}
+
+		this.value = value;
 	}
 }
 
-export function localStore<T>(key: string, value: T) {
-	return new LocalStore(key, value);
+export function localStore<T>(key: string, value: T, schema?: ZodSchema<T>) {
+	return new LocalStore(key, value, schema);
 }

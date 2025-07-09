@@ -68,6 +68,7 @@
 					toast.success('Poll created successfully!');
 
 					// Save poll ID to local storage
+					savedPolls.set([...savedPolls.get(), createdPoll.id].slice(-9));
 					savedPolls.value = [...savedPolls.value, createdPoll.id].slice(-9);
 
 					// Redirect to the created poll
