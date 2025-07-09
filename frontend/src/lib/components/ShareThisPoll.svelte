@@ -46,7 +46,7 @@
 		</Button>
 	</div>
 	<hr />
-	<div class="flex flex-row gap-2">
+	<div class="grid grid-cols-4 gap-2 sm:flex">
 		<Button
 			variant="outline"
 			size="lg"
