@@ -83,7 +83,7 @@
 							<!-- Total Votes -->
 							<div class="text-muted-foreground flex items-center gap-1.5 p-4 text-sm">
 								<div class="bg-muted-foreground rounded-full p-1">
-									<TrendingUp class="text-background size-3" />
+									<TrendingUp strokeWidth={3} class="text-background size-3" />
 								</div>
 								Total votes: {poll.totalVotes}
 							</div>
