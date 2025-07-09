@@ -8,7 +8,6 @@ export { PollDurableObject };
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    console.log(env.FRONTEND_URL);
     const url = new URL(request.url);
 
     // Handle WebSocket upgrade requests

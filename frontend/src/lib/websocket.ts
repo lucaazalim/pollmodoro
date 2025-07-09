@@ -1,14 +1,14 @@
 import { env } from '$env/dynamic/public';
-import type { PollWithResults, WebSocketMessage } from '../../../backend/src/db/types';
-import { pollStore } from './stores';
+import type { WebSocketMessage } from '../../../backend/src/utils/types';
+import { pollStore, type GetPollOutput } from './stores';
 
 const webSocketUrl = env.PUBLIC_WEBSOCKET_URL || 'ws://localhost:8787/websocket';
 
 export function connectWebSocket(
 	pollId: string,
-	currentWebSocket: WebSocket | null
-): WebSocket | null {
-	if (!pollId || !webSocketUrl) return null;
+	currentWebSocket: WebSocket | undefined
+): WebSocket | undefined {
+	if (!pollId || !webSocketUrl) return;
 
 	if (currentWebSocket) {
 		currentWebSocket.close();
@@ -22,7 +22,7 @@ export function connectWebSocket(
 
 	webSocket.onmessage = (event) => {
 		try {
-			const message = JSON.parse(event.data) as WebSocketMessage<PollWithResults>;
+			const message = JSON.parse(event.data) as WebSocketMessage<GetPollOutput>;
 
 			if (message.type === 'results' && message.data) {
 				pollStore.updatePollData(message.data);

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { page } from '$app/state';
 	import ContentDisclaimer from '$lib/components/ContentDisclaimer.svelte';
 	import CreateYourOwnPoll from '$lib/components/CreateYourOwnPoll.svelte';
 	import LoadSpinner from '$lib/components/LoadSpinner.svelte';
@@ -8,7 +7,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
 	import { Progress } from '$lib/components/ui/progress';
-	import { pollStore, voteStore } from '$lib/stores';
+	import { pollStore, voteStore, type GetPollOutput } from '$lib/stores';
 	import { cn, getPercentage } from '$lib/utils';
 	import { connectWebSocket } from '$lib/websocket';
 	import { Calendar, Check, Loader2, TrendingUp } from '@lucide/svelte';
@@ -18,26 +17,29 @@
 	import PollNotFound from '../PollNotFound.svelte';
 	import TurnstileWidget from '../TurnstileWidget.svelte';
 
-	let selectedOptions: number[] = [];
-	let selectedOption: number | null = null;
-	let webSocket: WebSocket | null = null;
+	type Props = {
+		poll: GetPollOutput;
+	};
 
-	let turnstileToken: string | null = null;
-	let resetTurnstileWidget: () => void;
+	let { poll }: Props = $props();
 
-	// Get poll ID from URL parameters
-	const pollId = page.params.id;
+	if (!poll) {
+		throw new Error('Poll data is required');
+	}
 
-	// Load poll and connect WebSocket
-	if (pollId) {
-		selectedOptions = [];
-		selectedOption = null;
+	pollStore.updatePollData(poll);
 
-		pollStore.fetchPoll({ id: pollId });
+	const pollId = poll.id;
 
-		if (browser) {
-			webSocket = connectWebSocket(pollId, webSocket);
-		}
+	let selectedOptions: number[] = $state([]);
+	let selectedOption: number | undefined = $state();
+	let webSocket: WebSocket | undefined = undefined;
+
+	let turnstileToken: string | null = $state(null);
+	let resetTurnstileWidget: (() => void) | undefined = $state();
+
+	if (browser) {
+		webSocket = connectWebSocket(pollId, webSocket);
 	}
 
 	onDestroy(() => {
@@ -57,7 +59,7 @@
 
 		if ($pollStore.data?.allowMultipleOptions) {
 			optionIds = selectedOptions;
-		} else if (selectedOption !== null) {
+		} else if (selectedOption) {
 			optionIds = [selectedOption];
 		}
 
@@ -72,10 +74,10 @@
 
 			// Clear selections after successful vote
 			selectedOptions = [];
-			selectedOption = null;
+			selectedOption = undefined;
 
 			// Reset Turnstile token
-			resetTurnstileWidget();
+			resetTurnstileWidget?.();
 
 			// Show success message
 			toast.success('Your vote has been successfully submitted!');
@@ -201,7 +203,7 @@
 							onclick={handleVote}
 							disabled={(poll.allowMultipleOptions
 								? selectedOptions.length === 0
-								: selectedOption === null) || $voteStore.loading}
+								: !selectedOption) || $voteStore.loading}
 							class="w-full"
 							size="lg"
 						>

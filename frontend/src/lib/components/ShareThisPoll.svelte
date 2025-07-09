@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { Clipboard, Mail, Share2 } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import FacebookIcon from './icons/FacebookIcon.svelte';
@@ -10,10 +11,10 @@
 
 	type Props = {
 		pollTitle: string;
-		pollUrl?: string;
 	};
 
-	let { pollTitle, pollUrl = window.location.href }: Props = $props();
+	let { pollTitle }: Props = $props();
+	const pollUrl = page.url.href;
 
 	const encodedPollUrl = encodeURIComponent(pollUrl);
 
@@ -34,7 +35,7 @@
 		Share this poll
 	</h2>
 	<div class="flex flex-row gap-2">
-		<Input value={window.location.href} readonly aria-label="Poll URL" />
+		<Input value={pollUrl} readonly aria-label="Poll URL" />
 		<Button
 			variant="outline"
 			size="lg"
