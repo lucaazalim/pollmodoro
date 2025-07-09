@@ -101,7 +101,7 @@
 	<title>Create Poll</title>
 </svelte:head>
 
-<div class="mx-auto max-w-2xl p-6" in:fade={{ duration: 500, easing: sineInOut }}>
+<div class="mx-auto max-w-2xl py-5" in:fade={{ duration: 500, easing: sineInOut }}>
 	<h1 class="text-foreground mb-8 text-3xl font-bold">Create a New Poll</h1>
 
 	<form use:enhance class="space-y-6">

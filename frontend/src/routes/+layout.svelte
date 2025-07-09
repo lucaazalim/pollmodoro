@@ -45,7 +45,7 @@
 
 <div class="justify-betweeen bg-background flex h-screen flex-col">
 	<Header />
-	<main class="grow py-8">
+	<main class="grow p-5">
 		{@render children()}
 	</main>
 	<Footer />

@@ -21,7 +21,7 @@
 	});
 </script>
 
-<div class="mx-auto max-w-5xl p-6 text-center">
+<div class="mx-auto max-w-5xl py-5 text-center">
 	<div class="space-y-5" in:fade={{ duration: 500, easing: sineInOut }}>
 		<h2 class="text-3xl font-bold">Your Polls</h2>
 		<div class="bg-card rounded-lg border p-5 shadow-sm">

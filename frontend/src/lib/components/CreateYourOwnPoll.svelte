@@ -1,11 +1,10 @@
 <script>
 	import { Plus } from '@lucide/svelte';
-	import Button from './ui/button/button.svelte';
 	import CreatePollButton from './CreatePollButton.svelte';
 </script>
 
 <div
-	class="bg-card flex flex-row items-center justify-between gap-5 rounded-lg border p-6 shadow-sm"
+	class="bg-card flex flex-col justify-between gap-5 rounded-lg border p-6 shadow-sm sm:flex-row sm:items-center"
 >
 	<div class="space-y-3">
 		<h2 class="flex flex-row items-center gap-2 text-xl font-bold">
@@ -16,5 +15,5 @@
 			Create, share, and analyze polls effortlessly. Get instant feedback from your audience.
 		</p>
 	</div>
-	<CreatePollButton/>
+	<CreatePollButton />
 </div>

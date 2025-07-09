@@ -7,6 +7,5 @@
 
 <Button href="/create" {...props}>
 	<AnimatedHorizontalChartIcon />
-	<!-- <ChartBar strokeWidth={3} /> -->
 	Create Poll
 </Button>

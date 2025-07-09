@@ -104,7 +104,7 @@
 	</title>
 </svelte:head>
 
-<div class="mx-auto h-full max-w-3xl p-6">
+<div class="mx-auto h-full max-w-3xl lg:py-5">
 	{#if $pollStore.error || !$pollStore.data}
 		<PollNotFound />
 	{:else}
@@ -113,12 +113,13 @@
 		<div in:fade={{ duration: 300 }} class="space-y-5">
 			<div class="bg-card rounded-lg border shadow-sm">
 				<!-- Poll Header -->
-				<div class="space-y-3 border-b p-6">
+				<div class="border-b p-6">
 					<h1 class="wrap-break-word text-wrap text-2xl font-bold">{poll.title}</h1>
 					{#if poll.description}
 						<p class="wrap-break-word text-muted-foreground text-wrap">{poll.description}</p>
 					{/if}
-
+				</div>
+				<div class="border-b p-6">
 					<div class="text-muted-foreground flex flex-wrap gap-4 text-sm">
 						<div class="flex items-center gap-1.5">
 							<div class="bg-muted-foreground rounded-full p-1">
