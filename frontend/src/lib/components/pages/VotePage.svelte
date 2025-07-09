@@ -54,7 +54,6 @@
 			return;
 		}
 
-		// Get the option IDs to vote for
 		let optionIds: number[] = [];
 
 		if ($pollStore.data?.allowMultipleOptions) {
