@@ -8,6 +8,7 @@
 	import XIcon from './icons/XIcon.svelte';
 	import Button from './ui/button/button.svelte';
 	import Input from './ui/input/input.svelte';
+	import Card from './Card.svelte';
 
 	type Props = {
 		pollTitle: string;
@@ -29,7 +30,7 @@
 	}
 </script>
 
-<div class="bg-card space-y-3 rounded-lg border p-6 shadow-sm">
+<Card class="space-y-4">
 	<h2 class="mb-5 flex flex-row items-center gap-2 text-xl font-bold">
 		<Share2 class="text-muted" />
 		Share this poll
@@ -96,4 +97,4 @@
 			<RedditIcon />
 		</Button>
 	</div>
-</div>
+</Card>

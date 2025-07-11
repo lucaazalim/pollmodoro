@@ -5,7 +5,7 @@
 </script>
 
 <header>
-	<nav class="bg-card border-b shadow-sm" aria-label="Main navigation">
+	<nav class="bg-card border-b shadow-md" aria-label="Main navigation">
 		<div class="mx-auto max-w-5xl px-5">
 			<div class="flex items-center justify-between gap-5 py-4 max-sm:flex-col">
 				<a href="/" aria-label="Pollmodoro - Go to homepage">

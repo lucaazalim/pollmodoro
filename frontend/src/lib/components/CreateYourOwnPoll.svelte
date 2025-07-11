@@ -1,10 +1,11 @@
 <script>
 	import { Plus } from '@lucide/svelte';
 	import CreatePollButton from './CreatePollButton.svelte';
+	import Card from './Card.svelte';
 </script>
 
-<div
-	class="bg-card flex flex-col justify-between gap-5 rounded-lg border p-6 shadow-sm sm:flex-row sm:items-center"
+<Card
+	class="flex flex-col justify-between gap-5 sm:flex-row sm:items-center"
 >
 	<div class="space-y-3">
 		<h2 class="flex flex-row items-center gap-2 text-xl font-bold">
@@ -16,4 +17,4 @@
 		</p>
 	</div>
 	<CreatePollButton />
-</div>
+</Card>

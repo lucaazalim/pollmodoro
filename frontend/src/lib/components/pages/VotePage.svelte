@@ -15,6 +15,7 @@
 	import { fade } from 'svelte/transition';
 	import PollNotFound from '../PollNotFound.svelte';
 	import TurnstileWidget from '../TurnstileWidget.svelte';
+	import Card from '../Card.svelte';
 
 	type Props = {
 		poll: GetPollOutput | null;
@@ -111,7 +112,7 @@
 		{@const poll = $pollStore.data}
 
 		<div in:fade={{ duration: 300 }} class="space-y-5">
-			<article class="bg-card rounded-lg border shadow-sm" role="main">
+			<Card class="p-0" role="main">
 				<!-- Poll Header -->
 				<header class="border-b p-6">
 					<h1 class="text-2xl font-bold text-wrap wrap-break-word">{poll.title}</h1>
@@ -152,7 +153,7 @@
 				<!-- Poll Options -->
 				<form class="space-y-4 border-b p-6" aria-labelledby="poll-options-heading">
 					<h2 id="poll-options-heading" class="sr-only">Poll Options</h2>
-					<fieldset>
+					<fieldset class="space-y-5">
 						<legend class="sr-only">
 							{poll.allowMultipleOptions ? 'Select one or more options' : 'Select one option'}
 						</legend>
@@ -160,11 +161,10 @@
 						{#each poll.options as option (option.id)}
 							{@const percentage = getPercentage(option.votesCount, poll.totalVotes)}
 
-							<div class="space-y-2">
 								<!-- Vote Option -->
 								<Label
 									class={cn(
-										'hover:bg-accent block w-full cursor-pointer space-y-3 rounded-lg border p-4 transition-colors',
+										'shadow-sm hover:bg-accent block w-full cursor-pointer space-y-3 rounded-lg border p-4 transition-colors',
 										{
 											'border-primary bg-primary/5':
 												poll.allowMultipleOptions && selectedOptions.includes(option.id),
@@ -218,7 +218,6 @@
 										{option.optionText}: {option.votesCount} votes, {percentage}% of total
 									</div>
 								</Label>
-							</div>
 						{/each}
 					</fieldset>
 				</form>
@@ -261,7 +260,7 @@
 						</div>
 					</div>
 				</div>
-			</article>
+			</Card>
 
 			<ShareThisPoll pollTitle={poll.title} />
 			<CreateYourOwnPoll />
