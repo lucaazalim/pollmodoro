@@ -207,22 +207,22 @@
 			>
 				<Form.Control>
 					{#snippet children({ props })}
-						<input
-							{...props}
-							type="checkbox"
-							bind:checked={$formData.allowMultipleOptions}
-							class="mt-1"
-							id="allow-multiple-options"
-							aria-describedby="multiple-options-description"
-						/>
-						<div class="space-y-1 leading-none">
-							<Form.Label class="font-medium" for="allow-multiple-options"
-								>Allow multiple selections</Form.Label
-							>
-							<Form.Description id="multiple-options-description"
-								>Let people choose more than one option</Form.Description
-							>
-						</div>
+						<label class="flex flex-row items-start space-x-3 space-y-0 w-full cursor-pointer" for="allow-multiple-options">
+							<input
+								{...props}
+								type="checkbox"
+								bind:checked={$formData.allowMultipleOptions}
+								class="mt-1"
+								id="allow-multiple-options"
+								aria-describedby="multiple-options-description"
+							/>
+							<div class="space-y-1 leading-none">
+								<span class="font-medium">Allow multiple selections</span>
+								<Form.Description id="multiple-options-description">
+									Let people choose more than one option
+								</Form.Description>
+							</div>
+						</label>
 					{/snippet}
 				</Form.Control>
 				<Form.FieldErrors />
