@@ -111,32 +111,37 @@
 		{@const poll = $pollStore.data}
 
 		<div in:fade={{ duration: 300 }} class="space-y-5">
-			<div class="bg-card rounded-lg border shadow-sm">
+			<article class="bg-card rounded-lg border shadow-sm" role="main">
 				<!-- Poll Header -->
-				<div class="border-b p-6">
-					<h1 class="wrap-break-word text-wrap text-2xl font-bold">{poll.title}</h1>
+				<header class="border-b p-6">
+					<h1 class="text-2xl font-bold text-wrap wrap-break-word">{poll.title}</h1>
 					{#if poll.description}
-						<p class="wrap-break-word text-muted-foreground text-wrap">{poll.description}</p>
+						<p class="text-muted-foreground text-wrap wrap-break-word">{poll.description}</p>
 					{/if}
-				</div>
+				</header>
+
 				<div class="border-b p-6">
-					<div class="text-muted-foreground flex flex-wrap gap-4 text-sm">
-						<div class="flex items-center gap-1.5">
-							<div class="bg-muted-foreground rounded-full p-1">
+					<div
+						class="text-muted-foreground flex flex-wrap gap-4 text-sm"
+						role="list"
+						aria-label="Poll statistics"
+					>
+						<div class="flex items-center gap-1.5" role="listitem">
+							<div class="bg-muted-foreground rounded-full p-1" aria-hidden="true">
 								<TrendingUp strokeWidth={3} class="text-background size-3" />
 							</div>
 							Total votes: {poll.totalVotes}
 						</div>
 
-						<div class="flex items-center gap-1.5">
-							<div class="bg-muted-foreground rounded-full p-1">
+						<div class="flex items-center gap-1.5" role="listitem">
+							<div class="bg-muted-foreground rounded-full p-1" aria-hidden="true">
 								<Check strokeWidth={3} class="text-background size-3" />
 							</div>
 							{poll.allowMultipleOptions ? 'Multiple selections allowed' : 'Single selection only'}
 						</div>
 
-						<div class="flex items-center gap-1.5">
-							<div class="bg-muted-foreground rounded-full p-1">
+						<div class="flex items-center gap-1.5" role="listitem">
+							<div class="bg-muted-foreground rounded-full p-1" aria-hidden="true">
 								<Calendar strokeWidth={3} class="text-background size-3" />
 							</div>
 							<span>Created: {new Date(poll.createdAt).toLocaleDateString()}</span>
@@ -145,70 +150,97 @@
 				</div>
 
 				<!-- Poll Options -->
-				<div class="space-y-4 border-b p-6">
-					{#each poll.options as option}
-						{@const percentage = getPercentage(option.votesCount, poll.totalVotes)}
+				<form class="space-y-4 border-b p-6" aria-labelledby="poll-options-heading">
+					<h2 id="poll-options-heading" class="sr-only">Poll Options</h2>
+					<fieldset>
+						<legend class="sr-only">
+							{poll.allowMultipleOptions ? 'Select one or more options' : 'Select one option'}
+						</legend>
 
-						<div class="space-y-2">
-							<!-- Vote Option -->
-							<Label
-								class={cn(
-									'hover:bg-accent block w-full cursor-pointer space-y-3 rounded-lg border p-4 transition-colors',
-									{
-										'border-primary bg-primary/5':
-											poll.allowMultipleOptions && selectedOptions.includes(option.id),
-										'border-border': !poll.allowMultipleOptions && selectedOption === option.id
-									}
-								)}
-							>
-								<div class="flex items-center justify-between gap-4">
-									<div class="flex flex-row items-center justify-between gap-3">
-										<div>
-											{#if poll.allowMultipleOptions}
-												<input
-													type="checkbox"
-													value={option.id}
-													bind:group={selectedOptions}
-													class="accent-primary size-4"
-												/>
-											{:else}
-												<input
-													type="radio"
-													name="poll-option"
-													value={option.id}
-													bind:group={selectedOption}
-													class="accent-primary size-4"
-												/>
-											{/if}
+						{#each poll.options as option (option.id)}
+							{@const percentage = getPercentage(option.votesCount, poll.totalVotes)}
+
+							<div class="space-y-2">
+								<!-- Vote Option -->
+								<Label
+									class={cn(
+										'hover:bg-accent block w-full cursor-pointer space-y-3 rounded-lg border p-4 transition-colors',
+										{
+											'border-primary bg-primary/5':
+												poll.allowMultipleOptions && selectedOptions.includes(option.id),
+											'border-border': !poll.allowMultipleOptions && selectedOption === option.id
+										}
+									)}
+								>
+									<div class="flex items-center justify-between gap-4">
+										<div class="flex flex-row items-center justify-between gap-3">
+											<div>
+												{#if poll.allowMultipleOptions}
+													<input
+														type="checkbox"
+														value={option.id}
+														bind:group={selectedOptions}
+														class="accent-primary size-4"
+														aria-describedby="option-{option.id}-stats"
+													/>
+												{:else}
+													<input
+														type="radio"
+														name="poll-option"
+														value={option.id}
+														bind:group={selectedOption}
+														class="accent-primary size-4"
+														aria-describedby="option-{option.id}-stats"
+													/>
+												{/if}
+											</div>
+
+											<p class="font-medium/5 line-clamp-3 leading-snug wrap-anywhere">
+												{option.optionText}
+											</p>
 										</div>
 
-										<p class="wrap-anywhere font-medium/5 line-clamp-3 leading-snug">
-											{option.optionText}
-										</p>
-									</div>
-
-									<div class="text-right">
-										<div class="-mb-1 text-lg font-bold">{option.votesCount.toLocaleString()}</div>
-										<div class="text-muted-foreground text-sm">
-											{percentage}%
+										<div class="text-right">
+											<div class="-mb-1 text-lg font-bold">
+												{option.votesCount.toLocaleString()}
+											</div>
+											<div class="text-muted-foreground text-sm">
+												{percentage}%
+											</div>
 										</div>
 									</div>
-								</div>
-								<Progress value={percentage} class="h-2" />
-							</Label>
-						</div>
-					{/each}
-				</div>
+									<Progress
+										value={percentage}
+										class="h-2"
+										aria-label="Progress bar showing {percentage}% of votes for this option"
+									/>
+									<div id="option-{option.id}-stats" class="sr-only">
+										{option.optionText}: {option.votesCount} votes, {percentage}% of total
+									</div>
+								</Label>
+							</div>
+						{/each}
+					</fieldset>
+				</form>
 
 				<div class="space-y-3 border-b p-6">
-					<TurnstileWidget bind:token={turnstileToken} bind:reset={resetTurnstileWidget} />
+					<fieldset>
+						<legend class="sr-only">Security verification</legend>
+						<TurnstileWidget bind:token={turnstileToken} bind:reset={resetTurnstileWidget} />
+					</fieldset>
 
 					<!-- Submit Vote Button -->
 					<div>
-						<Button onclick={handleVote} disabled={submitButtonDisabled} class="w-full" size="lg">
+						<Button
+							onclick={handleVote}
+							disabled={submitButtonDisabled}
+							class="w-full"
+							size="lg"
+							aria-describedby="vote-status"
+						>
 							{#if $voteStore.loading}
 								<div class="flex items-center justify-center gap-1.5">
-									<Loader2 class="text-primary-foreground size-4 animate-spin" />
+									<Loader2 class="text-primary-foreground size-4 animate-spin" aria-hidden="true" />
 									Submitting Vote...
 								</div>
 							{:else}
@@ -218,9 +250,18 @@
 								{/if}
 							{/if}
 						</Button>
+						<div id="vote-status" class="sr-only" aria-live="polite">
+							{#if $voteStore.loading}
+								Submitting your vote, please wait...
+							{:else if submitButtonDisabled}
+								Please select an option and complete the security verification to submit your vote
+							{:else}
+								Ready to submit vote
+							{/if}
+						</div>
 					</div>
 				</div>
-			</div>
+			</article>
 
 			<ShareThisPoll pollTitle={poll.title} />
 			<CreateYourOwnPoll />

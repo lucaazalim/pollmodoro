@@ -10,6 +10,7 @@
 				target="_blank"
 				rel="noopener noreferrer"
 				class="text-primary hover:text-primary/80 underline"
+				aria-label="Visit Luca Azalim's website (opens in new tab)"
 			>
 				Luca Azalim
 			</a>
@@ -19,6 +20,7 @@
 				target="_blank"
 				rel="noopener noreferrer"
 				class="text-primary hover:text-primary/80 underline"
+				aria-label="View Pollmodoro on GitHub (opens in new tab)"
 			>
 				GitHub
 			</a>

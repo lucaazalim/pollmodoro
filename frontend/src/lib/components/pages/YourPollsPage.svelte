@@ -46,16 +46,16 @@
 			</div>
 		{:else}
 			<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
-				{#each polls as poll}
+				{#each polls as poll (poll.id)}
 					<a href="/polls/{poll.id}" class="block">
 						<div
 							class="bg-card hover:shadow-m flex h-full flex-col rounded-lg border shadow-sm transition-all hover:scale-[102%]"
 						>
 							<!-- Poll Header -->
 							<div class="space-y-1 border-b p-4 text-left">
-								<h3 class="line-clamp-2 text-ellipsis text-wrap font-bold">{poll.title}</h3>
+								<h3 class="line-clamp-2 font-bold text-wrap text-ellipsis">{poll.title}</h3>
 								{#if poll.description}
-									<p class="text-muted-foreground line-clamp-2 text-ellipsis text-wrap text-sm">
+									<p class="text-muted-foreground line-clamp-2 text-sm text-wrap text-ellipsis">
 										{poll.description}
 									</p>
 								{/if}
@@ -63,11 +63,11 @@
 
 							<!-- Poll Options with Progress -->
 							<div class="grow space-y-2 border-b p-4">
-								{#each poll.options as option}
+								{#each poll.options as option (option.id)}
 									{@const percentage = getPercentage(option.votesCount, poll.totalVotes)}
 									<div class="space-y-1">
 										<div class="flex items-center justify-between gap-2 text-sm">
-											<span class="line-clamp-1 overflow-ellipsis text-nowrap font-medium"
+											<span class="line-clamp-1 font-medium text-nowrap overflow-ellipsis"
 												>{option.optionText}</span
 											>
 											<div class="flex flex-shrink-0 items-center gap-2">

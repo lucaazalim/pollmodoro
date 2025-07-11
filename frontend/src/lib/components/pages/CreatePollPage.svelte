@@ -72,9 +72,9 @@
 
 					// Redirect to the created poll
 					await goto(`/polls/${createdPoll.id}`);
-				} catch (error) {
+				} catch {
 					toast.error('Failed to create poll. Please try again.');
-					cancel(); // Prevent form reset on error
+					cancel();
 				}
 			}
 		}
@@ -102,9 +102,11 @@
 </svelte:head>
 
 <div class="mx-auto max-w-2xl py-5" in:fade={{ duration: 500, easing: sineInOut }}>
-	<h1 class="text-foreground mb-8 text-3xl font-bold">Create a New Poll</h1>
+	<h1 id="create-poll-heading" class="text-foreground mb-8 text-3xl font-bold">
+		Create a New Poll
+	</h1>
 
-	<form use:enhance class="space-y-6">
+	<form use:enhance class="space-y-6" aria-labelledby="create-poll-heading">
 		<Form.Field {form} name="title">
 			<Form.Control>
 				{#snippet children({ props })}
@@ -114,10 +116,12 @@
 						bind:value={$formData.title}
 						placeholder="What's your question?"
 						maxlength={200}
+						aria-describedby="title-description"
+						aria-required="true"
 					/>
 				{/snippet}
 			</Form.Control>
-			<Form.Description>Maximum 200 characters</Form.Description>
+			<Form.Description id="title-description">Maximum 200 characters</Form.Description>
 			<Form.FieldErrors />
 		</Form.Field>
 
@@ -131,20 +135,21 @@
 						placeholder="Provide additional context for your poll..."
 						rows={3}
 						maxlength={500}
+						aria-describedby="description-help"
 					/>
 				{/snippet}
 			</Form.Control>
-			<Form.Description>Maximum 500 characters</Form.Description>
+			<Form.Description id="description-help">Maximum 500 characters</Form.Description>
 			<Form.FieldErrors />
 		</Form.Field>
 
-		<div class="space-y-3">
-			<div>
+		<fieldset class="space-y-3">
+			<legend>
 				<Label>Poll Options *</Label>
 				<p class="text-muted-foreground mt-1 text-sm">Add 2-10 options for people to choose from</p>
-			</div>
+			</legend>
 
-			{#each $formData.options as option, index}
+			{#each $formData.options as _, index (index)}
 				<Form.Field {form} name="options[{index}]">
 					<Form.Control>
 						{#snippet children({ props })}
@@ -155,6 +160,8 @@
 										bind:value={$formData.options[index]}
 										placeholder="Option {index + 1}"
 										maxlength={100}
+										aria-label="Poll option {index + 1}"
+										aria-required="true"
 									/>
 								</div>
 								{#if $formData.options.length > 2}
@@ -164,8 +171,9 @@
 										size="lg"
 										class="px-3"
 										onclick={() => removeOption(index)}
+										aria-label="Remove option {index + 1}"
 									>
-										<Trash />
+										<Trash aria-hidden="true" />
 									</Button>
 								{/if}
 							</div>
@@ -176,14 +184,22 @@
 			{/each}
 
 			{#if $formData.options.length < 10}
-				<Button type="button" variant="outline" size="sm" onclick={addOption}>+ Add Option</Button>
+				<Button
+					type="button"
+					variant="outline"
+					size="sm"
+					onclick={addOption}
+					aria-label="Add another poll option"
+				>
+					+ Add Option
+				</Button>
 			{/if}
-		</div>
+		</fieldset>
 
 		<Form.Field
 			{form}
 			name="allowMultipleOptions"
-			class="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4"
+			class="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4"
 		>
 			<Form.Control>
 				{#snippet children({ props })}
@@ -192,22 +208,41 @@
 						type="checkbox"
 						bind:checked={$formData.allowMultipleOptions}
 						class="mt-1"
+						id="allow-multiple-options"
+						aria-describedby="multiple-options-description"
 					/>
 					<div class="space-y-1 leading-none">
-						<Form.Label class="font-medium">Allow multiple selections</Form.Label>
-						<Form.Description>Let people choose more than one option</Form.Description>
+						<Form.Label class="font-medium" for="allow-multiple-options"
+							>Allow multiple selections</Form.Label
+						>
+						<Form.Description id="multiple-options-description"
+							>Let people choose more than one option</Form.Description
+						>
 					</div>
 				{/snippet}
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>
 
-		<TurnstileWidget bind:token={turnstileToken} />
+		<fieldset>
+			<legend class="sr-only">Security verification</legend>
+			<TurnstileWidget bind:token={turnstileToken} />
+		</fieldset>
 
 		<div>
-			<Form.Button disabled={$createPollStore.loading} class="w-full" size="lg">
+			<Form.Button
+				disabled={$createPollStore.loading}
+				class="w-full"
+				size="lg"
+				aria-describedby="submit-status"
+			>
 				{$createPollStore.loading ? 'Creating Poll...' : 'Create Poll'}
 			</Form.Button>
+			<div id="submit-status" class="sr-only" aria-live="polite">
+				{#if $createPollStore.loading}
+					Creating your poll, please wait...
+				{/if}
+			</div>
 		</div>
 	</form>
 </div>

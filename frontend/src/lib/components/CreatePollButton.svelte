@@ -5,7 +5,7 @@
 	let props: ButtonProps = $props();
 </script>
 
-<Button href="/create" {...props}>
-	<AnimatedHorizontalChartIcon />
+<Button href="/create" {...props} aria-label="Create a new poll">
+	<AnimatedHorizontalChartIcon aria-hidden="true" />
 	Create Poll
 </Button>

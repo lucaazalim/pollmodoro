@@ -34,4 +34,13 @@
 	};
 </script>
 
-<div id={turnstileWidgetId} class="block min-h-[66px] flex-row"></div>
+<div
+	id={turnstileWidgetId}
+	class="block min-h-[66px] flex-row"
+	role="application"
+	aria-label="Security verification"
+	aria-describedby="turnstile-description"
+></div>
+<div id="turnstile-description" class="sr-only">
+	Complete this security verification to prove you are human and not a bot
+</div>
