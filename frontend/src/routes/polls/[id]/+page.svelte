@@ -1,8 +1,8 @@
 <script lang="ts">
 	import VotePage from '$lib/components/pages/VotePage.svelte';
-	import type { PageProps } from '../$types';
+	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 </script>
 
-<VotePage {...data} />
+<VotePage poll={data.poll} />

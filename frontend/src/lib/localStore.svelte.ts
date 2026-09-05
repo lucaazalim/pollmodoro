@@ -1,55 +1,48 @@
 import { browser } from '$app/environment';
-import { z, type ZodSchema } from 'zod';
+import type { ZodType } from 'zod';
 
+/**
+ * A small piece of reactive state persisted to `localStorage` and validated
+ * with a Zod schema. Assign to `current` to update it.
+ */
 export class LocalStore<T> {
-	private value = $state<T>() as T;
-	private key: string;
-	private schema: ZodSchema<T>;
+	#value: T = $state.raw() as T;
+	readonly #key: string;
+	readonly #schema: ZodType<T>;
 
-	constructor(key: string, value: T, schema?: ZodSchema<T>) {
-		this.key = key;
-		this.value = value;
-		this.schema = schema ?? z.any();
+	constructor(key: string, initial: T, schema: ZodType<T>) {
+		this.#key = key;
+		this.#schema = schema;
+		this.#value = browser ? (this.#read() ?? initial) : initial;
+	}
+
+	get current(): T {
+		return this.#value;
+	}
+
+	set current(value: T) {
+		this.#value = this.#schema.parse(value);
 
 		if (browser) {
-			const item = localStorage.getItem(key);
-
-			if (item) {
-				try {
-					const parsed = z
-						.string()
-						.transform((str) => JSON.parse(str))
-						.pipe(this.schema)
-						.parse(item);
-
-					this.value = parsed;
-				} catch (error) {
-					console.error(error);
-					localStorage.removeItem(key);
-				}
-			}
+			localStorage.setItem(this.#key, JSON.stringify(this.#value));
 		}
-
-		$effect(() => {
-			localStorage.setItem(this.key, JSON.stringify(this.value));
-		});
 	}
 
-	get() {
-		return this.value;
-	}
+	#read(): T | undefined {
+		const item = localStorage.getItem(this.#key);
 
-	set(value: T) {
-		const parsed = this.schema.safeParse(value);
+		if (item === null) return undefined;
 
-		if (!parsed.success) {
-			throw new Error(`Invalid value for local store "${this.key}": ${parsed.error.message}`);
+		try {
+			return this.#schema.parse(JSON.parse(item));
+		} catch (error) {
+			console.error(`Discarding invalid value stored under "${this.#key}":`, error);
+			localStorage.removeItem(this.#key);
+			return undefined;
 		}
-
-		this.value = parsed.data;
 	}
 }
 
-export function localStore<T>(key: string, value: T, schema?: ZodSchema<T>) {
-	return new LocalStore(key, value, schema);
+export function localStore<T>(key: string, initial: T, schema: ZodType<T>) {
+	return new LocalStore(key, initial, schema);
 }

@@ -1,20 +1,13 @@
 import { env } from '$env/dynamic/public';
-import { createTRPCProxyClient, httpBatchLink } from '@trpc/client';
-import type { AppRouter } from '../../../backend/src/router';
+import type { AppRouter } from '$backend/router';
+import { createTRPCClient, httpBatchLink } from '@trpc/client';
+import type { inferRouterOutputs } from '@trpc/server';
 
-const tRPCUrl = env.PUBLIC_TRPC_URL || 'http://localhost:8787/trpc';
+const trpcUrl = env.PUBLIC_TRPC_URL || 'http://localhost:8787/trpc';
 
-// Create the tRPC client
-export const trpc = createTRPCProxyClient<AppRouter>({
-	links: [
-		httpBatchLink({
-			url: tRPCUrl,
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-	]
+export const trpc = createTRPCClient<AppRouter>({
+	links: [httpBatchLink({ url: trpcUrl })]
 });
 
-// Export types for use in components
-export type { AppRouter } from '../../../backend/src/router';
+export type { AppRouter };
+export type PollWithResults = inferRouterOutputs<AppRouter>['getPoll'];

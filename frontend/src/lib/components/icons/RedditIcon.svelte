@@ -1,4 +1,11 @@
+<script lang="ts">
+	import type { SVGAttributes } from 'svelte/elements';
+
+	let props: SVGAttributes<SVGSVGElement> = $props();
+</script>
+
 <svg
+	{...props}
 	xmlns="http://www.w3.org/2000/svg"
 	class="text-foreground"
 	preserveAspectRatio="xMidYMid"

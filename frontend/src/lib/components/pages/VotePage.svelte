@@ -1,265 +1,214 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
+	import Card from '$lib/components/Card.svelte';
 	import ContentDisclaimer from '$lib/components/ContentDisclaimer.svelte';
 	import CreateYourOwnPoll from '$lib/components/CreateYourOwnPoll.svelte';
+	import PollNotFound from '$lib/components/PollNotFound.svelte';
 	import ShareThisPoll from '$lib/components/ShareThisPoll.svelte';
+	import TurnstileWidget from '$lib/components/TurnstileWidget.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Label } from '$lib/components/ui/label';
 	import { Progress } from '$lib/components/ui/progress';
-	import { pollStore, voteStore, type GetPollOutput } from '$lib/stores';
-	import { cn, getPercentage } from '$lib/utils';
-	import { connectWebSocket } from '$lib/websocket';
-	import { Calendar, Check, Loader2, TrendingUp } from '@lucide/svelte';
-	import { onDestroy } from 'svelte';
+	import { trpc, type PollWithResults } from '$lib/trpc';
+	import { cn, formatDate, getPercentage } from '$lib/utils';
+	import { subscribeToPollResults } from '$lib/websocket';
+	import Calendar from '@lucide/svelte/icons/calendar';
+	import ListChecks from '@lucide/svelte/icons/list-checks';
+	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
+	import Users from '@lucide/svelte/icons/users';
 	import { toast } from 'svelte-sonner';
 	import { fade } from 'svelte/transition';
-	import PollNotFound from '../PollNotFound.svelte';
-	import TurnstileWidget from '../TurnstileWidget.svelte';
-	import Card from '../Card.svelte';
 
 	type Props = {
-		poll: GetPollOutput | null;
+		poll: PollWithResults | null;
 	};
 
-	let { poll }: Props = $props();
+	let { poll: loadedPoll }: Props = $props();
 
-	if (poll) {
-		pollStore.updatePollData(poll);
-	}
+	// Starts from the server-loaded poll and is overridden by live results.
+	let poll = $derived(loadedPoll);
 
-	let webSocket: WebSocket | undefined = undefined;
+	let selectedOption = $state<number | undefined>();
+	let selectedOptions = $state<number[]>([]);
+	let turnstileToken = $state<string | null>(null);
+	let resetTurnstile = $state<() => void>();
+	let submitting = $state(false);
 
-	let selectedOptions: number[] = $state([]);
-	let selectedOption: number | undefined = $state();
-
-	let turnstileToken: string | null = $state(null);
-	let resetTurnstileWidget: (() => void) | undefined = $state();
-
-	let submitButtonDisabled = $derived.by(() => {
-		if (!poll) return true;
-
-		const noMultiple = poll.allowMultipleOptions && selectedOptions.length === 0;
-		const noSingle = !poll.allowMultipleOptions && !selectedOption;
-		const isLoading = $voteStore.loading;
-		const noTurstileToken = !turnstileToken;
-
-		return noMultiple || noSingle || isLoading || noTurstileToken;
+	const selectedIds = $derived.by(() => {
+		if (!poll) return [];
+		if (poll.allowMultipleOptions) return selectedOptions;
+		return selectedOption === undefined ? [] : [selectedOption];
 	});
 
-	if (browser && poll) {
-		webSocket = connectWebSocket(poll.id, webSocket);
-	}
+	const canVote = $derived(selectedIds.length > 0 && turnstileToken !== null && !submitting);
 
-	onDestroy(() => {
-		if (webSocket) {
-			webSocket.close();
-		}
+	$effect(() => {
+		const pollId = loadedPoll?.id;
+		if (!pollId) return;
+
+		return subscribeToPollResults(pollId, (results) => {
+			poll = results;
+		});
 	});
 
-	async function handleVote() {
-		if (!poll) {
-			return;
-		}
+	async function vote() {
+		if (!poll || !turnstileToken || selectedIds.length === 0) return;
 
-		if (!turnstileToken) {
-			toast.error('Please complete the captcha before submitting your vote.');
-			return;
-		}
-
-		let optionIds: number[] = [];
-
-		if ($pollStore.data?.allowMultipleOptions) {
-			optionIds = selectedOptions;
-		} else if (selectedOption) {
-			optionIds = [selectedOption];
-		}
-
-		if (optionIds.length === 0) return;
+		submitting = true;
 
 		try {
-			await voteStore.vote({
+			await trpc.createVote.mutate({
 				pollId: poll.id,
-				optionIds,
-				turnstileToken: turnstileToken || ''
+				optionIds: selectedIds,
+				turnstileToken
 			});
 
-			// Clear selections after successful vote
-			selectedOptions = [];
 			selectedOption = undefined;
-
-			// Reset Turnstile token
-			resetTurnstileWidget?.();
-
-			// Show success message
-			toast.success('Your vote has been successfully submitted!');
+			selectedOptions = [];
+			toast.success('Your vote is in.');
 		} catch (error) {
 			console.error(error);
-			toast.error('Failed to submit vote. Please try again.');
+			toast.error('Your vote could not be submitted. Please try again.');
+		} finally {
+			// A Turnstile token is single-use, so always get a fresh one.
+			resetTurnstile?.();
+			submitting = false;
 		}
 	}
 </script>
 
 <svelte:head>
-	<title>
-		{$pollStore.data?.title || 'Poll'} - Pollmodoro
-	</title>
+	<title>{poll ? `${poll.title} · Pollmodoro` : 'Poll not found · Pollmodoro'}</title>
+	{#if poll}
+		<meta
+			name="description"
+			content={poll.description || `Vote on "${poll.title}" on Pollmodoro.`}
+		/>
+		<meta property="og:title" content={poll.title} />
+		<meta
+			property="og:description"
+			content={poll.description || 'Vote on this poll and see the results live.'}
+		/>
+	{/if}
 </svelte:head>
 
-<div class="mx-auto h-full max-w-3xl lg:py-5">
-	{#if $pollStore.error || !$pollStore.data}
+<div class="mx-auto max-w-3xl py-6 sm:py-10">
+	{#if !poll}
 		<PollNotFound />
 	{:else}
-		{@const poll = $pollStore.data}
-
-		<div in:fade={{ duration: 300 }} class="space-y-5">
-			<Card class="p-0" role="main">
-				<!-- Poll Header -->
-				<header class="border-b p-6">
-					<h1 class="text-2xl font-bold text-wrap wrap-break-word">{poll.title}</h1>
+		<div class="space-y-5" in:fade={{ duration: 300 }}>
+			<Card class="p-0">
+				<header class="space-y-2 border-b p-6">
+					<h1 class="text-2xl font-bold tracking-tight text-pretty wrap-break-word">
+						{poll.title}
+					</h1>
 					{#if poll.description}
-						<p class="text-muted-foreground text-wrap wrap-break-word">{poll.description}</p>
+						<p class="text-muted-foreground text-pretty wrap-break-word">{poll.description}</p>
 					{/if}
+					<dl class="text-muted-foreground flex flex-wrap gap-x-5 gap-y-1 pt-2 text-sm">
+						<div class="flex items-center gap-1.5">
+							<dt class="sr-only">Votes</dt>
+							<Users class="size-4" aria-hidden="true" />
+							<dd>{poll.totalVotes} {poll.totalVotes === 1 ? 'vote' : 'votes'}</dd>
+						</div>
+						<div class="flex items-center gap-1.5">
+							<dt class="sr-only">Type</dt>
+							<ListChecks class="size-4" aria-hidden="true" />
+							<dd>{poll.allowMultipleOptions ? 'Multiple choice' : 'Single choice'}</dd>
+						</div>
+						<div class="flex items-center gap-1.5">
+							<dt class="sr-only">Created</dt>
+							<Calendar class="size-4" aria-hidden="true" />
+							<dd>Created {formatDate(poll.createdAt)}</dd>
+						</div>
+					</dl>
 				</header>
 
-				<div class="border-b p-6">
-					<div
-						class="text-muted-foreground flex flex-wrap gap-4 text-sm"
-						role="list"
-						aria-label="Poll statistics"
-					>
-						<div class="flex items-center gap-1.5" role="listitem">
-							<div class="bg-muted-foreground rounded-full p-1" aria-hidden="true">
-								<TrendingUp strokeWidth={3} class="text-background size-3" />
-							</div>
-							Total votes: {poll.totalVotes}
-						</div>
-
-						<div class="flex items-center gap-1.5" role="listitem">
-							<div class="bg-muted-foreground rounded-full p-1" aria-hidden="true">
-								<Check strokeWidth={3} class="text-background size-3" />
-							</div>
-							{poll.allowMultipleOptions ? 'Multiple selections allowed' : 'Single selection only'}
-						</div>
-
-						<div class="flex items-center gap-1.5" role="listitem">
-							<div class="bg-muted-foreground rounded-full p-1" aria-hidden="true">
-								<Calendar strokeWidth={3} class="text-background size-3" />
-							</div>
-							<span>Created: {new Date(poll.createdAt).toLocaleDateString()}</span>
-						</div>
-					</div>
-				</div>
-
-				<!-- Poll Options -->
-				<form class="space-y-4 border-b p-6" aria-labelledby="poll-options-heading">
-					<h2 id="poll-options-heading" class="sr-only">Poll Options</h2>
-					<fieldset class="space-y-5">
+				<form
+					class="space-y-6 p-6"
+					onsubmit={(event) => {
+						event.preventDefault();
+						vote();
+					}}
+				>
+					<fieldset class="space-y-3">
 						<legend class="sr-only">
-							{poll.allowMultipleOptions ? 'Select one or more options' : 'Select one option'}
+							{poll.allowMultipleOptions ? 'Pick one or more options' : 'Pick one option'}
 						</legend>
 
 						{#each poll.options as option (option.id)}
 							{@const percentage = getPercentage(option.votesCount, poll.totalVotes)}
+							{@const selected = selectedIds.includes(option.id)}
 
-								<!-- Vote Option -->
-								<Label
-									class={cn(
-										'shadow-sm hover:bg-accent block w-full cursor-pointer space-y-3 rounded-lg border p-4 transition-colors',
-										{
-											'border-primary bg-primary/5':
-												poll.allowMultipleOptions && selectedOptions.includes(option.id),
-											'border-border': !poll.allowMultipleOptions && selectedOption === option.id
-										}
-									)}
-								>
-									<div class="flex items-center justify-between gap-4">
-										<div class="flex flex-row items-center justify-between gap-3">
-											<div>
-												{#if poll.allowMultipleOptions}
-													<input
-														type="checkbox"
-														value={option.id}
-														bind:group={selectedOptions}
-														class="accent-primary size-4"
-														aria-describedby="option-{option.id}-stats"
-													/>
-												{:else}
-													<input
-														type="radio"
-														name="poll-option"
-														value={option.id}
-														bind:group={selectedOption}
-														class="accent-primary size-4"
-														aria-describedby="option-{option.id}-stats"
-													/>
-												{/if}
-											</div>
-
-											<p class="font-medium/5 line-clamp-3 leading-snug wrap-anywhere">
-												{option.optionText}
-											</p>
-										</div>
-
-										<div class="text-right">
-											<div class="-mb-1 text-lg font-bold">
-												{option.votesCount.toLocaleString()}
-											</div>
-											<div class="text-muted-foreground text-sm">
-												{percentage}%
-											</div>
-										</div>
+							<label
+								class={cn(
+									'hover:bg-muted/50 has-focus-visible:ring-ring/50 block cursor-pointer space-y-3 rounded-lg border p-4 transition-colors has-focus-visible:ring-3',
+									selected && 'border-primary bg-primary/5 hover:bg-primary/10'
+								)}
+							>
+								<div class="flex items-start justify-between gap-4">
+									<div class="flex min-w-0 items-start gap-3">
+										{#if poll.allowMultipleOptions}
+											<input
+												type="checkbox"
+												value={option.id}
+												bind:group={selectedOptions}
+												class="accent-primary mt-1 size-4 shrink-0"
+												disabled={submitting}
+											/>
+										{:else}
+											<input
+												type="radio"
+												name="option"
+												value={option.id}
+												bind:group={selectedOption}
+												class="accent-primary mt-1 size-4 shrink-0"
+												disabled={submitting}
+											/>
+										{/if}
+										<span class="leading-snug font-medium wrap-anywhere">{option.optionText}</span>
 									</div>
-									<Progress
-										value={percentage}
-										class="h-2"
-										aria-label="Progress bar showing {percentage}% of votes for this option"
-									/>
-									<div id="option-{option.id}-stats" class="sr-only">
-										{option.optionText}: {option.votesCount} votes, {percentage}% of total
-									</div>
-								</Label>
+									<span class="shrink-0 text-right tabular-nums">
+										<span class="block text-lg leading-tight font-bold">{option.votesCount}</span>
+										<span class="text-muted-foreground text-sm">{percentage}%</span>
+									</span>
+								</div>
+								<Progress
+									value={percentage}
+									class="h-2"
+									aria-label="{percentage}% of votes for {option.optionText}"
+								/>
+							</label>
 						{/each}
 					</fieldset>
-				</form>
 
-				<div class="space-y-3 border-b p-6">
-					<fieldset>
-						<legend class="sr-only">Security verification</legend>
-						<TurnstileWidget bind:token={turnstileToken} bind:reset={resetTurnstileWidget} />
-					</fieldset>
+					<div class="space-y-3 border-t pt-6">
+						<TurnstileWidget bind:token={turnstileToken} bind:reset={resetTurnstile} />
 
-					<!-- Submit Vote Button -->
-					<div>
 						<Button
-							onclick={handleVote}
-							disabled={submitButtonDisabled}
-							class="w-full"
+							type="submit"
+							pushable
+							disabled={!canVote}
+							class="h-11 w-full text-base"
 							size="lg"
-							aria-describedby="vote-status"
 						>
-							{#if $voteStore.loading}
-								<div class="flex items-center justify-center gap-1.5">
-									<Loader2 class="text-primary-foreground size-4 animate-spin" aria-hidden="true" />
-									Submitting Vote...
-								</div>
+							{#if submitting}
+								<LoaderCircle class="animate-spin" aria-hidden="true" />
+								Submitting…
+							{:else if poll.allowMultipleOptions && selectedIds.length > 1}
+								Vote for {selectedIds.length} options
 							{:else}
-								Submit Vote{poll.allowMultipleOptions && selectedOptions.length > 1 ? 's' : ''}
-								{#if poll.allowMultipleOptions && selectedOptions.length > 0}
-									({selectedOptions.length} selected)
-								{/if}
+								Vote
 							{/if}
 						</Button>
-						<div id="vote-status" class="sr-only" aria-live="polite">
-							{#if $voteStore.loading}
-								Submitting your vote, please wait...
-							{:else if submitButtonDisabled}
-								Please select an option and complete the security verification to submit your vote
-							{:else}
-								Ready to submit vote
+
+						<p class="sr-only" aria-live="polite">
+							{#if submitting}
+								Submitting your vote.
+							{:else if !canVote}
+								Pick an option and complete the verification to vote.
 							{/if}
-						</div>
+						</p>
 					</div>
-				</div>
+				</form>
 			</Card>
 
 			<ShareThisPoll pollTitle={poll.title} />

@@ -1,22 +1,27 @@
 {
-  "name": "poll",
+  "name": "pollmodoro-backend",
+  "private": true,
+  "type": "module",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
-    "db:generate": "drizzle-kit generate",
+    "check": "tsc --noEmit",
+    "lint": "prettier --check . && oxlint",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "cf-typegen": "wrangler types",
+    "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
-    "@trpc/server": "^11.4.3",
-    "drizzle-orm": "^0.44.2",
-    "nanoid": "^5.1.5",
-    "zod": "^3.25.69"
+    "@trpc/server": "^11.18.0",
+    "drizzle-orm": "^0.45.2",
+    "nanoid": "^6.0.1",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.31.4",
-    "prettier": "^3.6.2",
-    "wrangler": "^4.22.0"
+    "drizzle-kit": "^0.31.10",
+    "oxlint": "^1.81.0",
+    "prettier": "^3.9.6",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.129.0"
   }
 }

@@ -1,0 +1,16 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"plugins": ["typescript", "unicorn", "oxc"],
+	"categories": {
+		"correctness": "error",
+		"suspicious": "error",
+		"perf": "warn"
+	},
+	"rules": {
+		"unicorn/require-module-specifiers": "off"
+	},
+	"env": {
+		"browser": true
+	},
+	"ignorePatterns": [".svelte-kit/**", ".wrangler/**", "build/**", "static/**"]
+}

@@ -3,35 +3,13 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import Header from '$lib/components/Header.svelte';
 	import { Toaster } from '$lib/components/ui/sonner';
-	import { onTurnstileLoadCallbackName, setTurnstileContext } from '$lib/turnstile';
 	import { ModeWatcher } from 'mode-watcher';
-	import { onMount } from 'svelte';
 	import '../app.css';
 
 	let { children } = $props();
-
-	let turnstileScript = $state({
-		loaded: false
-	});
-
-	setTurnstileContext(turnstileScript);
-
-	onMount(() => {
-		console.log('Mounting layout...');
-		window.onTurnstileLoad = () => {
-			console.log('Turnstile script loaded!');
-			turnstileScript.loaded = true;
-		};
-	});
 </script>
 
 <svelte:head>
-	<script
-		src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload={onTurnstileLoadCallbackName}"
-		async
-		defer
-	></script>
-
 	{#if !dev}
 		<script
 			defer
@@ -41,23 +19,21 @@
 	{/if}
 </svelte:head>
 
-<svelte:window />
+<ModeWatcher themeColors={{ light: '#ffffff', dark: '#09090b' }} />
 
-<!-- Skip to main content link for screen readers -->
 <a
 	href="#main-content"
-	class="focus:bg-primary focus:text-primary-foreground focus:ring-ring sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:px-4 focus:py-2 focus:ring-2 focus:outline-none"
+	class="focus:bg-primary focus:text-primary-foreground sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:px-4 focus:py-2"
 >
 	Skip to main content
 </a>
 
-<div class="justify-betweeen bg-background flex h-screen flex-col">
+<div class="flex min-h-svh flex-col">
 	<Header />
-	<main id="main-content" class="grow p-5" tabindex="-1">
+	<main id="main-content" class="flex-1 px-5" tabindex="-1">
 		{@render children()}
 	</main>
 	<Footer />
 </div>
 
-<ModeWatcher />
-<Toaster richColors />
+<Toaster richColors position="bottom-center" />

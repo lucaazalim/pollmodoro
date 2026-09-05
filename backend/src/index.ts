@@ -1,80 +1,65 @@
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-import { OnErrorFunction } from "@trpc/server/http";
 import { PollDurableObject } from "./poll-durable-object";
-import { AppRouter, appRouter } from "./router";
-import { TRPCContext } from "./utils/types";
+import { appRouter } from "./router";
 
 export { PollDurableObject };
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request, env) {
     const url = new URL(request.url);
 
-    // Handle WebSocket upgrade requests
-    if (request.method === "GET" && url.pathname.endsWith("/websocket")) {
-      const upgradeHeader = request.headers.get("Upgrade");
-
-      if (!upgradeHeader || upgradeHeader !== "websocket") {
-        return new Response(null, {
-          status: 426,
-          statusText: "Durable Object expected Upgrade: websocket",
-          headers: {
-            "Content-Type": "text/plain",
-          },
-        });
-      }
-
-      const pollId = url.searchParams.get("pollId");
-
-      if (!pollId) {
-        return new Response("Poll-Id header is required", { status: 400 });
-      }
-
-      const durableObjectId = env.POLL_DURABLE_OBJECT.idFromName(pollId);
-      const stub = env.POLL_DURABLE_OBJECT.get(durableObjectId);
-
-      return stub.fetch(request);
+    if (url.pathname === "/websocket") {
+      return handleWebSocket(request, url, env);
     }
 
     const corsHeaders = {
       "Access-Control-Allow-Origin": env.FRONTEND_URL,
-      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
     };
 
-    // Handle CORS preflight requests
     if (request.method === "OPTIONS") {
       return new Response(null, {
-        status: 200,
-        headers: {
-          ...corsHeaders,
-          "Access-Control-Max-Age": "86400",
-        },
+        status: 204,
+        headers: { ...corsHeaders, "Access-Control-Max-Age": "86400" },
       });
     }
 
-    // Handle tRPC requests
     const response = await fetchRequestHandler({
       endpoint: "/trpc",
       req: request,
       router: appRouter,
-      createContext: () => ({ env, request }) satisfies TRPCContext,
-      onError: ({
-        error,
-        path,
-      }: Parameters<OnErrorFunction<AppRouter, Request>>[0]) => {
-        console.error(`❌ tRPC failed on ${path}:`, error);
+      createContext: () => ({ env, request }),
+      onError({ error, path }) {
+        console.error(`tRPC failed on ${path ?? "<no-path>"}:`, error);
       },
     });
 
-    // Clone the response to add CORS headers
-    return new Response(response.body, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: {
-        ...Object.fromEntries(response.headers.entries()),
-        ...corsHeaders,
-      },
-    });
+    const responseWithCors = new Response(response.body, response);
+
+    for (const [name, value] of Object.entries(corsHeaders)) {
+      responseWithCors.headers.set(name, value);
+    }
+
+    return responseWithCors;
   },
-};
+} satisfies ExportedHandler<Env>;
+
+/** Forwards a WebSocket upgrade to the Durable Object that owns the poll. */
+function handleWebSocket(
+  request: Request,
+  url: URL,
+  env: Env,
+): Promise<Response> | Response {
+  if (request.headers.get("Upgrade") !== "websocket") {
+    return new Response("Expected Upgrade: websocket", { status: 426 });
+  }
+
+  const pollId = url.searchParams.get("pollId");
+
+  if (!pollId) {
+    return new Response("Missing pollId query parameter", { status: 400 });
+  }
+
+  return env.POLL_DURABLE_OBJECT.getByName(pollId).fetch(request);
+}

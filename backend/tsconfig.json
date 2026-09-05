@@ -3,9 +3,18 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "strict": true,
-    "skipLibCheck": true,
     "lib": ["ESNext"],
-    "types": ["./worker-configuration.d.ts"]
-  }
+    "types": ["./worker-configuration.d.ts"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": [
+    "src",
+    "drizzle",
+    "drizzle.config.ts",
+    "worker-configuration.d.ts"
+  ]
 }

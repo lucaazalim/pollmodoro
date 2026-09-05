@@ -2,81 +2,58 @@
 	import { page } from '$app/state';
 	import CreatePollButton from '$lib/components/CreatePollButton.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Home, RefreshCw } from '@lucide/svelte';
-	import { sineInOut } from 'svelte/easing';
+	import House from '@lucide/svelte/icons/house';
+	import RefreshCw from '@lucide/svelte/icons/refresh-cw';
 	import { fade } from 'svelte/transition';
 
-	const { error, status } = page;
-
-	const errorConfigs = {
-		404: {
-			title: 'Page Not Found',
-			message: "The page you're looking for doesn't exist or has been moved.",
-			showCreateButton: true
-		},
-		500: {
-			title: 'Server Error',
-			message: "We're experiencing technical difficulties. Please try again later.",
-			showCreateButton: false
+	const content = $derived.by(() => {
+		if (page.status === 404) {
+			return {
+				title: 'Page not found',
+				message: "There's nothing at this address. Check the link, or head back home.",
+				canRetry: false
+			};
 		}
-	} as const;
 
-	const defaultErrorConfig = {
-		title: 'Something Went Wrong',
-		message: 'An unexpected error occurred. Please try again.',
-		showCreateButton: true
-	};
-
-	let errorConfig = $derived(
-		errorConfigs[status as keyof typeof errorConfigs] || defaultErrorConfig
-	);
+		return {
+			title: 'Something went wrong',
+			message:
+				page.status >= 500
+					? 'The server hit an error. Please try again in a moment.'
+					: 'An unexpected error happened. Please try again.',
+			canRetry: true
+		};
+	});
 </script>
 
 <svelte:head>
-	<title>{errorConfig.title} - Pollmodoro</title>
-	<meta
-		name="description"
-		content="{errorConfig.message} Return to Pollmodoro homepage to create polls and gather feedback."
-	/>
-	<meta name="robots" content="noindex, follow" />
+	<title>{content.title} · Pollmodoro</title>
+	<meta name="robots" content="noindex" />
 </svelte:head>
 
 <div
-	class="flex h-full flex-col items-center justify-center text-center"
-	in:fade={{ duration: 500, easing: sineInOut }}
+	class="flex min-h-[60vh] flex-col items-center justify-center py-16 text-center"
+	in:fade={{ duration: 300 }}
 >
-	<div class="mx-auto max-w-md">
-		<div class="mb-8">
-			<h2 class="text-foreground mt-4 text-2xl font-semibold">
-				{errorConfig.title}
-			</h2>
-			<p class="text-foreground/80 mt-2">
-				{errorConfig.message}
-			</p>
-			{#if error?.message && status >= 500}
-				<p class="text-muted mt-2 text-sm">
-					Error: {error.message}
-				</p>
-			{/if}
-		</div>
+	<p class="text-muted-foreground font-mono text-sm">{page.status}</p>
+	<h1 class="mt-2 text-2xl font-semibold">{content.title}</h1>
+	<p class="text-muted-foreground mt-2 max-w-md text-pretty">{content.message}</p>
+	{#if page.error?.message && page.status >= 500}
+		<p class="text-muted-foreground mt-2 font-mono text-xs">{page.error.message}</p>
+	{/if}
 
-		<div class="flex flex-row justify-center gap-3">
-			<Button href="/" class="flex items-center gap-2">
-				<Home strokeWidth={3} class="size-4" />
-				Go Home
+	<div class="mt-8 flex flex-row justify-center gap-3">
+		<Button href="/" variant="outline" pushable>
+			<House aria-hidden="true" />
+			Go home
+		</Button>
+		{#if content.canRetry}
+			<Button onclick={() => window.location.reload()} pushable>
+				<RefreshCw aria-hidden="true" />
+				Try again
 			</Button>
-			{#if errorConfig.showCreateButton}
-				<CreatePollButton variant="outline" />
-			{:else}
-				<Button
-					onclick={() => window.location.reload()}
-					variant="outline"
-					class="flex items-center gap-2"
-				>
-					<RefreshCw class="h-4 w-4" />
-					Try Again
-				</Button>
-			{/if}
-		</div>
+		{:else}
+			<CreatePollButton label="Create a poll" />
+		{/if}
 	</div>
 </div>

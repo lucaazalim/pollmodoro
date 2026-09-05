@@ -1,4 +1,4 @@
-import { poll, pollOptions, votes } from "./schema";
+import type { poll, pollOptions, votes } from "./schema";
 
 export type Poll = typeof poll.$inferSelect;
 export type PollInsert = typeof poll.$inferInsert;
@@ -11,9 +11,11 @@ export type PollWithOptions = Poll & {
   options: PollOption[];
 };
 
+export type PollOptionWithVotes = PollOption & {
+  votesCount: number;
+};
+
 export type PollWithResults = Poll & {
-  options: (PollOption & {
-    votesCount: number;
-  })[];
+  options: PollOptionWithVotes[];
   totalVotes: number;
 };

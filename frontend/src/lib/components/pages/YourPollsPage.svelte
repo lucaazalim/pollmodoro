@@ -1,97 +1,91 @@
 <script lang="ts">
-	import { Progress } from '$lib/components/ui/progress';
+	import Card from '$lib/components/Card.svelte';
+	import CreatePollButton from '$lib/components/CreatePollButton.svelte';
+	import LoadSpinner from '$lib/components/LoadSpinner.svelte';
+	import OptionResult from '$lib/components/OptionResult.svelte';
 	import { localStore } from '$lib/localStore.svelte';
-	import { pollStore, type GetPollOutput } from '$lib/stores';
-	import { getPercentage } from '$lib/utils';
-	import { Plus, TrendingUp } from '@lucide/svelte';
-	import { sineInOut } from 'svelte/easing';
+	import { trpc, type PollWithResults } from '$lib/trpc';
+	import { formatDate, getPercentage } from '$lib/utils';
+	import Users from '@lucide/svelte/icons/users';
+	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import LoadSpinner from '../LoadSpinner.svelte';
-	import Button from '../ui/button/button.svelte';
-	import Card from '../Card.svelte';
+	import { z } from 'zod';
 
-	let pollIds = localStore('polls', [] as string[]);
-	let polls: GetPollOutput[] | undefined = undefined;
+	const savedPolls = localStore('polls', [] as string[], z.array(z.string()));
 
-	Promise.all(
-		pollIds.get().map(async (id) => {
-			return pollStore.fetchPoll({ id });
-		})
-	).then((fetchedPolls) => {
-		polls = fetchedPolls.filter((poll) => !!poll);
+	let polls = $state<PollWithResults[]>();
+
+	onMount(async () => {
+		// Newest first. Polls that no longer exist are skipped.
+		const results = await Promise.allSettled(
+			savedPolls.current.toReversed().map((id) => trpc.getPoll.query({ id }))
+		);
+
+		polls = results.filter((result) => result.status === 'fulfilled').map((result) => result.value);
 	});
 </script>
 
-<div class="mx-auto max-w-5xl py-5 text-center">
-	<div class="space-y-5" in:fade={{ duration: 500, easing: sineInOut }}>
-		<h2 class="text-3xl font-bold">Your Polls</h2>
-		<Card>
-			<p>
-				Pollmodoro doesn’t require you to log in — that means all polls are anonymous. This page
-				shows the polls you’ve created on <strong>this device</strong>. They're saved in your
-				browser so only you can see them, and only from here. If you clear your browser data or
-				switch devices, your saved polls will disappear.
-			</p>
+<svelte:head>
+	<title>Your polls · Pollmodoro</title>
+	<meta name="robots" content="noindex" />
+</svelte:head>
+
+<div class="mx-auto max-w-5xl py-6 sm:py-10" in:fade={{ duration: 400 }}>
+	<div class="mb-6">
+		<h1 class="text-3xl font-bold tracking-tight">Your polls</h1>
+		<p class="text-muted-foreground mt-1 max-w-2xl text-pretty">
+			Polls you've created in this browser. The list is saved locally, so it won't show up on other
+			devices, and clearing your browser data removes it (the polls themselves stay online).
+		</p>
+	</div>
+
+	{#if polls === undefined}
+		<LoadSpinner class="py-16" label="Loading your polls" />
+	{:else if polls.length === 0}
+		<Card class="flex flex-col items-center gap-4 py-12 text-center">
+			<p class="text-muted-foreground">You haven't created any polls in this browser yet.</p>
+			<CreatePollButton label="Create a poll" />
 		</Card>
-		{#if polls === undefined}
-			<div class="flex items-center justify-center py-12">
-				<LoadSpinner />
-			</div>
-		{:else if polls.length === 0}
-			<Card class="gap-5">
-				<span>You haven’t created any polls on this device yet.</span>
-				<Button href="/create" class="w-fit">
-					<Plus />
-					Create Poll
-				</Button>
-			</Card>
-		{:else}
-			<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
-				{#each polls as poll (poll.id)}
-					<a href="/polls/{poll.id}" class="block">
+	{:else}
+		<ul class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+			{#each polls as poll (poll.id)}
+				<li>
+					<a
+						href="/polls/{poll.id}"
+						class="bg-card text-card-foreground hover:border-primary/40 focus-visible:ring-ring/50 flex h-full flex-col rounded-xl border shadow-xs transition-colors outline-none focus-visible:ring-3"
+					>
+						<div class="space-y-1 border-b p-4">
+							<h2 class="line-clamp-2 font-semibold wrap-break-word">{poll.title}</h2>
+							{#if poll.description}
+								<p class="text-muted-foreground line-clamp-2 text-sm wrap-break-word">
+									{poll.description}
+								</p>
+							{/if}
+						</div>
+
+						<div class="grow space-y-3 p-4">
+							{#each poll.options as option (option.id)}
+								<OptionResult
+									text={option.optionText}
+									votes={option.votesCount}
+									percentage={getPercentage(option.votesCount, poll.totalVotes)}
+								/>
+							{/each}
+						</div>
+
 						<div
-							class="bg-card hover:shadow-m flex h-full flex-col rounded-lg border shadow-sm transition-all hover:scale-[102%]"
+							class="text-muted-foreground flex items-center justify-between gap-2 border-t p-4 text-sm"
 						>
-							<!-- Poll Header -->
-							<div class="space-y-1 border-b p-4 text-left">
-								<h3 class="line-clamp-2 font-bold text-wrap text-ellipsis">{poll.title}</h3>
-								{#if poll.description}
-									<p class="text-muted-foreground line-clamp-2 text-sm text-wrap text-ellipsis">
-										{poll.description}
-									</p>
-								{/if}
-							</div>
-
-							<!-- Poll Options with Progress -->
-							<div class="grow space-y-2 border-b p-4">
-								{#each poll.options as option (option.id)}
-									{@const percentage = getPercentage(option.votesCount, poll.totalVotes)}
-									<div class="space-y-1">
-										<div class="flex items-center justify-between gap-2 text-sm">
-											<span class="line-clamp-1 font-medium text-nowrap overflow-ellipsis"
-												>{option.optionText}</span
-											>
-											<div class="flex flex-shrink-0 items-center gap-2">
-												<span class="font-semibold">{option.votesCount}</span>
-												<span class="text-muted-foreground">({percentage}%)</span>
-											</div>
-										</div>
-										<Progress value={percentage} class="h-1.5" />
-									</div>
-								{/each}
-							</div>
-
-							<!-- Total Votes -->
-							<div class="text-muted-foreground flex items-center gap-1.5 p-4 text-sm">
-								<div class="bg-muted-foreground rounded-full p-1">
-									<TrendingUp strokeWidth={3} class="text-background size-3" />
-								</div>
-								Total votes: {poll.totalVotes}
-							</div>
+							<span class="flex items-center gap-1.5">
+								<Users class="size-4" aria-hidden="true" />
+								{poll.totalVotes}
+								{poll.totalVotes === 1 ? 'vote' : 'votes'}
+							</span>
+							<span>{formatDate(poll.createdAt)}</span>
 						</div>
 					</a>
-				{/each}
-			</div>
-		{/if}
-	</div>
+				</li>
+			{/each}
+		</ul>
+	{/if}
 </div>

@@ -1,11 +1,23 @@
 <script lang="ts">
 	import AnimatedHorizontalChartIcon from './icons/AnimatedHorizontalChartIcon.svelte';
-	import Button, { type ButtonProps } from './ui/button/button.svelte';
+	import { Button, type ButtonSize, type ButtonVariant } from './ui/button';
 
-	let props: ButtonProps = $props();
+	type Props = {
+		variant?: ButtonVariant;
+		size?: ButtonSize;
+		class?: string;
+		label?: string;
+	};
+
+	let {
+		variant = 'default',
+		size = 'default',
+		class: className,
+		label = 'Create poll'
+	}: Props = $props();
 </script>
 
-<Button href="/create" {...props} aria-label="Create a new poll">
+<Button href="/create" {variant} {size} class={className} pushable>
 	<AnimatedHorizontalChartIcon aria-hidden="true" />
-	Create Poll
+	{label}
 </Button>

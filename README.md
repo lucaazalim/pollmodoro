@@ -35,7 +35,7 @@ Pollmodoro leverages CloudFlare's edge computing infrastructure to deliver a fas
 #### Development & Deployment
 
 - **[Wrangler](https://developers.cloudflare.com/workers/wrangler/)** - Cloudflare's command-line tool for development and deployment
-- **[ESLint](https://eslint.org/)** - JavaScript/TypeScript linting
+- **[Oxlint](https://oxc.rs/docs/guide/usage/linter.html)** - Fast JavaScript/TypeScript linting
 - **[Prettier](https://prettier.io/)** - Code formatting
 - **[Drizzle Kit](https://orm.drizzle.team/kit-docs/overview)** - Database migrations and introspection toolkit
 
@@ -86,8 +86,8 @@ Pollmodoro leverages CloudFlare's edge computing infrastructure to deliver a fas
 
 ### Prerequisites
 
-- **Node.js** (v18 or later)
-- **npm** or **yarn**
+- **Node.js** (v22 or later)
+- **npm**
 - **CloudFlare Account** (free tier works)
 
 ### Setup Steps
@@ -114,6 +114,7 @@ Pollmodoro leverages CloudFlare's edge computing infrastructure to deliver a fas
 
    ```bash
    cd backend
+   cp .dev.vars.example .dev.vars   # Turnstile test secret for local development
    npm run dev
    ```
 
@@ -127,3 +128,16 @@ Pollmodoro leverages CloudFlare's edge computing infrastructure to deliver a fas
    ```
 
    The frontend will run on `http://localhost:5173`
+
+### Useful scripts
+
+Both `backend/` and `frontend/` have the same set of scripts:
+
+| Script           | What it does                                                    |
+| ---------------- | --------------------------------------------------------------- |
+| `npm run check`  | Type-checks the project (`tsc` in the backend, `svelte-check` in the frontend) |
+| `npm run lint`   | Runs Prettier in check mode and Oxlint                          |
+| `npm run format` | Formats the code with Prettier                                  |
+| `npm run deploy` | Builds and deploys the Worker with Wrangler                     |
+
+The backend type-checks with TypeScript 7 (the native compiler). The frontend stays on TypeScript 6 for now because `svelte-check` and SvelteKit don't support TypeScript 7 yet.

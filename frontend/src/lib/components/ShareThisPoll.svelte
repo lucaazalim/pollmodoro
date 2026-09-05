@@ -1,100 +1,95 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { Clipboard, Mail, Share2 } from '@lucide/svelte';
+	import Copy from '@lucide/svelte/icons/copy';
+	import Mail from '@lucide/svelte/icons/mail';
+	import Share2 from '@lucide/svelte/icons/share-2';
 	import { toast } from 'svelte-sonner';
+	import Card from './Card.svelte';
 	import FacebookIcon from './icons/FacebookIcon.svelte';
 	import RedditIcon from './icons/RedditIcon.svelte';
 	import WhatsAppIcon from './icons/WhatsAppIcon.svelte';
 	import XIcon from './icons/XIcon.svelte';
-	import Button from './ui/button/button.svelte';
-	import Input from './ui/input/input.svelte';
-	import Card from './Card.svelte';
+	import { Button } from './ui/button';
+	import { Input } from './ui/input';
 
 	type Props = {
 		pollTitle: string;
 	};
 
 	let { pollTitle }: Props = $props();
-	const pollUrl = page.url.href;
 
-	const encodedPollUrl = encodeURIComponent(pollUrl);
+	const pollUrl = $derived(page.url.href);
+	const encodedUrl = $derived(encodeURIComponent(pollUrl));
+	const encodedTitle = $derived(encodeURIComponent(pollTitle));
 
-	async function copyToClipboard() {
+	const shareTargets = $derived([
+		{
+			label: 'Share by email',
+			href: `mailto:?subject=${encodedTitle}&body=${encodeURIComponent(`Vote on this poll: ${pollUrl}`)}`,
+			icon: Mail
+		},
+		{
+			label: 'Share on X',
+			href: `https://x.com/intent/post?text=${encodedTitle}&url=${encodedUrl}`,
+			icon: XIcon
+		},
+		{
+			label: 'Share on WhatsApp',
+			href: `https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}`,
+			icon: WhatsAppIcon
+		},
+		{
+			label: 'Share on Facebook',
+			href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+			icon: FacebookIcon
+		},
+		{
+			label: 'Share on Reddit',
+			href: `https://www.reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`,
+			icon: RedditIcon
+		}
+	]);
+
+	async function copyLink() {
 		try {
-			await navigator.clipboard.writeText(window.location.href);
-			toast.info('Link copied to clipboard!');
-		} catch (err) {
-			console.error('Failed to copy: ', err);
-			toast.error('Failed to copy link');
+			await navigator.clipboard.writeText(pollUrl);
+			toast.success('Link copied to clipboard.');
+		} catch (error) {
+			console.error('Failed to copy link:', error);
+			toast.error('The link could not be copied.');
 		}
 	}
 </script>
 
 <Card class="space-y-4">
-	<h2 class="mb-5 flex flex-row items-center gap-2 text-xl font-bold">
-		<Share2 class="text-muted" />
-		Share this poll
-	</h2>
-	<div class="flex flex-row gap-2">
-		<Input value={pollUrl} readonly aria-label="Poll URL" />
-		<Button
-			variant="outline"
-			size="lg"
-			onclick={copyToClipboard}
-			aria-label="Copy poll URL to clipboard"
-		>
-			<Clipboard />
+	<div class="space-y-1">
+		<h2 class="flex items-center gap-2 text-lg font-semibold">
+			<Share2 class="text-muted-foreground size-5" aria-hidden="true" />
+			Share this poll
+		</h2>
+		<p class="text-muted-foreground text-sm">Anyone with the link can vote.</p>
+	</div>
+
+	<div class="flex gap-2">
+		<Input value={pollUrl} readonly aria-label="Poll link" class="font-mono text-sm" />
+		<Button variant="outline" onclick={copyLink} class="shrink-0">
+			<Copy aria-hidden="true" />
+			Copy
 		</Button>
 	</div>
-	<hr />
-	<div class="grid grid-cols-4 gap-2 sm:flex">
-		<Button
-			variant="outline"
-			size="lg"
-			href="mailto:?subject=Check out this poll&body=I found this interesting poll: {pollUrl}"
-			aria-label="Share poll via email"
-		>
-			<Mail />
-		</Button>
-		<Button
-			variant="outline"
-			size="lg"
-			href="https://x.com/share?text=Check out this poll!&url={encodedPollUrl}"
-			target="_blank"
-			rel="noopener noreferrer"
-			aria-label="Share poll on X (formerly Twitter)"
-		>
-			<XIcon />
-		</Button>
-		<Button
-			variant="outline"
-			size="lg"
-			href="https://api.whatsapp.com/send?text={pollTitle}%20-%20{encodedPollUrl}"
-			target="_blank"
-			rel="noopener noreferrer"
-			aria-label="Share poll on WhatsApp"
-		>
-			<WhatsAppIcon />
-		</Button>
-		<Button
-			variant="outline"
-			size="lg"
-			href="https://www.facebook.com/sharer/sharer.php?u={encodedPollUrl}"
-			target="_blank"
-			rel="noopener noreferrer"
-			aria-label="Share poll on Facebook"
-		>
-			<FacebookIcon />
-		</Button>
-		<Button
-			variant="outline"
-			size="lg"
-			href="https://www.reddit.com/submit?url={encodedPollUrl}&title={pollTitle}%20-%20Pollmodoro"
-			target="_blank"
-			rel="noopener noreferrer"
-			aria-label="Share poll on Reddit"
-		>
-			<RedditIcon />
-		</Button>
+
+	<div class="flex flex-wrap gap-2">
+		{#each shareTargets as target (target.label)}
+			<Button
+				variant="outline"
+				size="icon"
+				href={target.href}
+				target={target.href.startsWith('mailto:') ? undefined : '_blank'}
+				rel="noopener noreferrer"
+				aria-label={target.label}
+			>
+				<target.icon aria-hidden="true" />
+			</Button>
+		{/each}
 	</div>
 </Card>

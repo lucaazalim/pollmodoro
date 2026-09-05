@@ -1,195 +1,183 @@
 import { DurableObject } from "cloudflare:workers";
-import { count, eq, getTableColumns } from "drizzle-orm";
-import { drizzle, DrizzleSqliteDODatabase } from "drizzle-orm/durable-sqlite";
+import { asc, count, eq, getTableColumns } from "drizzle-orm";
+import {
+  drizzle,
+  type DrizzleSqliteDODatabase,
+} from "drizzle-orm/durable-sqlite";
 import { migrate } from "drizzle-orm/durable-sqlite/migrator";
 import migrations from "../drizzle/migrations";
+import * as schema from "./db/schema";
 import { poll, pollOptions, votes } from "./db/schema";
-import { PollWithOptions, PollWithResults, Vote, VoteInsert } from "./db/types";
-import { Result } from "./utils/result";
-import { WebSocketMessage } from "./utils/types";
+import type {
+  PollInsert,
+  PollOptionInsert,
+  PollWithOptions,
+  PollWithResults,
+  Vote,
+  VoteInsert,
+} from "./db/types";
+import { fail, ok, type Result } from "./utils/result";
+import type { WebSocketMessage } from "./utils/types";
 
-export class PollDurableObject extends DurableObject {
-  storage: DurableObjectStorage;
-  db: DrizzleSqliteDODatabase<any>;
+/**
+ * One Durable Object instance per poll. It owns the poll's SQLite database and
+ * the WebSocket connections of everyone currently looking at the poll.
+ */
+export class PollDurableObject extends DurableObject<Env> {
+  private readonly db: DrizzleSqliteDODatabase<typeof schema>;
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
 
-    this.storage = this.ctx.storage;
-    this.db = drizzle(this.storage, { logger: false });
+    this.db = drizzle(ctx.storage, { schema, logger: false });
 
-    ctx.blockConcurrencyWhile(async () => {
-      await this._migrate();
-    });
+    // Make sure all migrations complete before any request touches the database.
+    ctx.blockConcurrencyWhile(() => migrate(this.db, migrations));
   }
 
   async createPoll(
-    pollInsert: typeof poll.$inferInsert,
-    pollOptionsInsert: (typeof pollOptions.$inferInsert)[]
+    pollInsert: PollInsert,
+    optionInserts: PollOptionInsert[],
   ): Promise<Result<PollWithOptions>> {
-    const [createdPoll, createdPollOptions] = await Promise.all([
-      this.db.insert(poll).values(pollInsert).returning(),
-      this.db.insert(pollOptions).values(pollOptionsInsert).returning(),
-    ]);
+    const createdPoll = this.db
+      .insert(poll)
+      .values(pollInsert)
+      .returning()
+      .get();
+    const createdOptions = this.db
+      .insert(pollOptions)
+      .values(optionInserts)
+      .returning()
+      .all();
 
-    return {
-      success: true,
-      data: {
-        ...createdPoll[0],
-        options: createdPollOptions,
-      },
-    };
+    return ok({ ...createdPoll, options: createdOptions });
   }
 
   async selectPoll(): Promise<Result<PollWithOptions>> {
-    const [pollData, pollOptionsData] = await Promise.all([
-      this.db.select().from(poll),
-      this.db.select().from(pollOptions),
-    ]);
+    const pollRow = this.db.select().from(poll).get();
 
-    if (!pollData || pollData.length === 0) {
-      return {
-        success: false,
-        message: "Poll not found.",
-        tRPCError: "NOT_FOUND",
-      };
+    if (!pollRow) {
+      return fail("NOT_FOUND", "Poll not found.");
     }
 
-    return {
-      success: true,
-      data: {
-        ...pollData[0],
-        options: pollOptionsData,
-      },
-    };
+    const options = this.db
+      .select()
+      .from(pollOptions)
+      .orderBy(asc(pollOptions.id))
+      .all();
+
+    return ok({ ...pollRow, options });
   }
 
   async selectPollWithResults(): Promise<Result<PollWithResults>> {
-    const pollData = await this.db.select().from(poll);
+    const pollRow = this.db.select().from(poll).get();
 
-    if (!pollData || pollData.length === 0) {
-      return {
-        success: false,
-        message: "Poll not found",
-        tRPCError: "NOT_FOUND",
-      };
+    if (!pollRow) {
+      return fail("NOT_FOUND", "Poll not found.");
     }
 
-    const optionsWithVotes = await this.db
-      .select({
-        ...getTableColumns(pollOptions),
-        votesCount: count(votes.id),
-      })
+    const options = this.db
+      .select({ ...getTableColumns(pollOptions), votesCount: count(votes.id) })
       .from(pollOptions)
       .leftJoin(votes, eq(pollOptions.id, votes.pollOptionId))
-      .groupBy(pollOptions.id, pollOptions.optionText);
+      .groupBy(pollOptions.id)
+      .orderBy(asc(pollOptions.id))
+      .all();
 
-    const totalVotes = optionsWithVotes.reduce(
+    const totalVotes = options.reduce(
       (sum, option) => sum + option.votesCount,
-      0
+      0,
     );
 
-    return {
-      success: true,
-      data: {
-        ...pollData[0],
-        options: optionsWithVotes,
-        totalVotes,
-      },
-    };
+    return ok({ ...pollRow, options, totalVotes });
   }
 
   async insertVotes(voteInserts: VoteInsert[]): Promise<Result<Vote[]>> {
-    const pollWithOptions = await this.selectPoll();
+    const current = await this.selectPoll();
 
-    if (!pollWithOptions.success) {
-      return pollWithOptions;
+    if (!current.success) {
+      return current;
     }
 
-    const { closeAt, allowMultipleOptions, options } = pollWithOptions.data;
+    const { closeAt, allowMultipleOptions, options } = current.data;
 
-    // Check if poll is still open
-    if (closeAt && new Date() > closeAt) {
-      return {
-        success: false,
-        message: "Poll is closed",
-        tRPCError: "BAD_REQUEST",
-      };
+    if (closeAt && closeAt.getTime() < Date.now()) {
+      return fail("BAD_REQUEST", "This poll is closed.");
     }
 
-    // Check if multiple options are allowed
     if (!allowMultipleOptions && voteInserts.length > 1) {
-      return {
-        success: false,
-        message: "Multiple options are not allowed for this poll",
-        tRPCError: "BAD_REQUEST",
-      };
+      return fail(
+        "BAD_REQUEST",
+        "This poll only allows a single option per vote.",
+      );
     }
 
-    const availableOptionIds = options.map((option) => option.id);
+    const optionIds = new Set(options.map((option) => option.id));
 
-    // Validate that all voteInserts have valid pollOptionIds
-    if (
-      !voteInserts
-        .map((vote) => vote.pollOptionId)
-        .every((id) => availableOptionIds.includes(id))
-    ) {
-      return {
-        success: false,
-        message: "One or more option IDs are invalid",
-        tRPCError: "BAD_REQUEST",
-      };
+    if (!voteInserts.every((vote) => optionIds.has(vote.pollOptionId))) {
+      return fail("BAD_REQUEST", "One or more option IDs are invalid.");
     }
 
-    const insertedVotes = await this.db
+    const insertedVotes = this.db
       .insert(votes)
       .values(voteInserts)
-      .returning();
+      .returning()
+      .all();
 
-    const updatedPollWithResults = await this.selectPollWithResults();
+    const updated = await this.selectPollWithResults();
 
-    if (!updatedPollWithResults.success) {
-      return updatedPollWithResults;
+    if (updated.success) {
+      this.#broadcast({ type: "results", data: updated.data });
     }
 
-    const resultsBroadcast: WebSocketMessage<PollWithResults> = {
-      type: "results",
-      data: updatedPollWithResults.data,
-    };
-
-    this.#broadcast(resultsBroadcast);
-
-    return {
-      success: true,
-      data: insertedVotes,
-    };
+    return ok(insertedVotes);
   }
 
-  #broadcast(message: WebSocketMessage<any>) {
-    this.ctx.getWebSockets().forEach((ws) => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify(message));
-      }
-    });
-  }
-
+  /** Accepts a WebSocket that will receive live results for this poll. */
   async fetch(request: Request): Promise<Response> {
-    const webSocketPair = new WebSocketPair();
-    const [client, server] = Object.values(webSocketPair);
+    if (request.headers.get("Upgrade") !== "websocket") {
+      return new Response("Expected a WebSocket upgrade request.", {
+        status: 426,
+      });
+    }
 
+    const { 0: client, 1: server } = new WebSocketPair();
+
+    // Hibernatable WebSockets: the object can be evicted from memory while
+    // connections stay open, and wakes up again to broadcast new results.
     this.ctx.acceptWebSocket(server);
 
-    server.addEventListener("close", (cls: CloseEvent) => {
-      server.close(cls.code, "Durable Object is closing WebSocket");
-    });
+    // Send the current results right away so a reconnecting client catches up.
+    const current = await this.selectPollWithResults();
 
-    return new Response(null, {
-      status: 101,
-      webSocket: client,
-    });
+    if (current.success) {
+      server.send(
+        JSON.stringify({
+          type: "results",
+          data: current.data,
+        } satisfies WebSocketMessage<PollWithResults>),
+      );
+    }
+
+    return new Response(null, { status: 101, webSocket: client });
   }
 
-  async _migrate() {
-    migrate(this.db, migrations);
+  webSocketClose(ws: WebSocket, code: number, reason: string): void {
+    ws.close(code, reason);
+  }
+
+  webSocketError(ws: WebSocket, error: unknown): void {
+    console.error("WebSocket error:", error);
+    ws.close(1011, "Unexpected WebSocket error.");
+  }
+
+  #broadcast(message: WebSocketMessage<PollWithResults>): void {
+    const payload = JSON.stringify(message);
+
+    for (const ws of this.ctx.getWebSockets()) {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(payload);
+      }
+    }
   }
 }

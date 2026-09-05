@@ -1,40 +1,58 @@
-import { getContext, setContext } from 'svelte';
-
-export {};
-
-export const onTurnstileLoadCallbackName = 'onTurnstileLoad';
-export const turnstileWidgetId = 'turnstile-widget';
-const turnstileContextKey = 'turnstile-script';
-
-type TurnstileContext = {
-	loaded: boolean;
+/** Minimal typings for the parts of the Turnstile client API that we use. */
+export type Turnstile = {
+	render: (
+		container: string | HTMLElement,
+		options: {
+			sitekey: string;
+			theme?: 'light' | 'dark' | 'auto';
+			size?: 'normal' | 'compact' | 'flexible';
+			callback: (token: string) => void;
+			'expired-callback'?: () => void;
+			'error-callback'?: (errorCode: string) => void;
+		}
+	) => string | undefined;
+	reset: (widgetId?: string) => void;
+	remove: (widgetId?: string) => void;
 };
 
 declare global {
-	const turnstile: {
-		render: (
-			selector: string,
-			options: {
-				sitekey: string;
-				theme?: 'light' | 'dark' | 'auto';
-				size?: 'normal' | 'compact' | 'flexible';
-				callback: (token: string) => void;
-			}
-		) => void;
-		reset: (widgetId: string) => void;
-	};
-}
-
-declare global {
 	interface Window {
-		[onTurnstileLoadCallbackName]: () => void;
+		turnstile?: Turnstile;
+		onTurnstileLoad?: () => void;
 	}
 }
 
-export function setTurnstileContext(context: TurnstileContext) {
-	setContext(turnstileContextKey, context);
-}
+const TURNSTILE_SCRIPT_URL =
+	'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad';
 
-export function getTurnstileContext(): TurnstileContext {
-	return getContext(turnstileContextKey);
+let loading: Promise<Turnstile> | undefined;
+
+/** Loads the Turnstile script on first use and resolves with the API once it is ready. */
+export function loadTurnstile(): Promise<Turnstile> {
+	if (window.turnstile) {
+		return Promise.resolve(window.turnstile);
+	}
+
+	loading ??= new Promise<Turnstile>((resolve, reject) => {
+		window.onTurnstileLoad = () => {
+			if (window.turnstile) {
+				resolve(window.turnstile);
+			} else {
+				reject(new Error('Turnstile loaded but its API is not available.'));
+			}
+		};
+
+		const script = document.createElement('script');
+		script.src = TURNSTILE_SCRIPT_URL;
+		script.async = true;
+		script.addEventListener('error', () => {
+			loading = undefined;
+			script.remove();
+			reject(new Error('Failed to load the Turnstile script.'));
+		});
+
+		document.head.appendChild(script);
+	});
+
+	return loading;
 }
