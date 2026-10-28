@@ -1,5 +1,5 @@
 import { DurableObject } from "cloudflare:workers";
-import { asc, count, eq, getTableColumns } from "drizzle-orm";
+import { asc, inArray, sql } from "drizzle-orm";
 import {
   drizzle,
   type DrizzleSqliteDODatabase,
@@ -70,26 +70,18 @@ export class PollDurableObject extends DurableObject<Env> {
   }
 
   async selectPollWithResults(): Promise<Result<PollWithResults>> {
-    const pollRow = this.db.select().from(poll).get();
+    const current = await this.selectPoll();
 
-    if (!pollRow) {
-      return fail("NOT_FOUND", "Poll not found.");
+    if (!current.success) {
+      return current;
     }
 
-    const options = this.db
-      .select({ ...getTableColumns(pollOptions), votesCount: count(votes.id) })
-      .from(pollOptions)
-      .leftJoin(votes, eq(pollOptions.id, votes.pollOptionId))
-      .groupBy(pollOptions.id)
-      .orderBy(asc(pollOptions.id))
-      .all();
-
-    const totalVotes = options.reduce(
+    const totalVotes = current.data.options.reduce(
       (sum, option) => sum + option.votesCount,
       0,
     );
 
-    return ok({ ...pollRow, options, totalVotes });
+    return ok({ ...current.data, totalVotes });
   }
 
   async insertVotes(voteInserts: VoteInsert[]): Promise<Result<Vote[]>> {
@@ -118,11 +110,19 @@ export class PollDurableObject extends DurableObject<Env> {
       return fail("BAD_REQUEST", "One or more option IDs are invalid.");
     }
 
-    const insertedVotes = this.db
-      .insert(votes)
-      .values(voteInserts)
-      .returning()
-      .all();
+    const insertedVotes = this.db.transaction((tx) => {
+      tx.update(pollOptions)
+        .set({ votesCount: sql`${pollOptions.votesCount} + 1` })
+        .where(
+          inArray(
+            pollOptions.id,
+            voteInserts.map((vote) => vote.pollOptionId),
+          ),
+        )
+        .run();
+
+      return tx.insert(votes).values(voteInserts).returning().all();
+    });
 
     const updated = await this.selectPollWithResults();
 

@@ -18,6 +18,9 @@ export const poll = sqliteTable("polls", {
 export const pollOptions = sqliteTable("poll_options", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   optionText: text("option_text").notNull(),
+  // Kept in sync with `votes` on every insert so reading results never has to
+  // count the votes table, which Cloudflare bills as one row read per vote.
+  votesCount: integer("votes_count").notNull().default(0),
 });
 
 export const votes = sqliteTable("votes", {
