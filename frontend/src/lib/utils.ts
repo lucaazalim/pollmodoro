@@ -16,10 +16,3 @@ export function getPercentage(votes: number, total: number): number {
 	if (total === 0) return 0;
 	return Math.round((votes / total) * 100);
 }
-
-const dateFormatter = new Intl.DateTimeFormat('en', { dateStyle: 'medium' });
-
-/** Formats a date the same way on the server and in the browser to avoid hydration mismatches. */
-export function formatDate(date: Date | string): string {
-	return dateFormatter.format(new Date(date));
-}

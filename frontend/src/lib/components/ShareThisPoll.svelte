@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { getI18n } from '$lib/i18n';
 	import Copy from '@lucide/svelte/icons/copy';
 	import Mail from '@lucide/svelte/icons/mail';
 	import Share2 from '@lucide/svelte/icons/share-2';
@@ -18,33 +19,35 @@
 
 	let { pollTitle }: Props = $props();
 
+	const { m } = getI18n();
+
 	const pollUrl = $derived(page.url.href);
 	const encodedUrl = $derived(encodeURIComponent(pollUrl));
 	const encodedTitle = $derived(encodeURIComponent(pollTitle));
 
 	const shareTargets = $derived([
 		{
-			label: 'Share by email',
-			href: `mailto:?subject=${encodedTitle}&body=${encodeURIComponent(`Vote on this poll: ${pollUrl}`)}`,
+			label: m.share.byEmail,
+			href: `mailto:?subject=${encodedTitle}&body=${encodeURIComponent(m.share.emailBody(pollUrl))}`,
 			icon: Mail
 		},
 		{
-			label: 'Share on X',
+			label: m.share.on('X'),
 			href: `https://x.com/intent/post?text=${encodedTitle}&url=${encodedUrl}`,
 			icon: XIcon
 		},
 		{
-			label: 'Share on WhatsApp',
+			label: m.share.on('WhatsApp'),
 			href: `https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}`,
 			icon: WhatsAppIcon
 		},
 		{
-			label: 'Share on Facebook',
+			label: m.share.on('Facebook'),
 			href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
 			icon: FacebookIcon
 		},
 		{
-			label: 'Share on Reddit',
+			label: m.share.on('Reddit'),
 			href: `https://www.reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`,
 			icon: RedditIcon
 		}
@@ -53,10 +56,10 @@
 	async function copyLink() {
 		try {
 			await navigator.clipboard.writeText(pollUrl);
-			toast.success('Link copied to clipboard.');
+			toast.success(m.share.copied);
 		} catch (error) {
 			console.error('Failed to copy link:', error);
-			toast.error('The link could not be copied.');
+			toast.error(m.share.copyFailed);
 		}
 	}
 </script>
@@ -65,16 +68,16 @@
 	<div class="space-y-1">
 		<h2 class="flex items-center gap-2 text-lg font-semibold">
 			<Share2 class="text-muted-foreground size-5" aria-hidden="true" />
-			Share this poll
+			{m.share.title}
 		</h2>
-		<p class="text-muted-foreground text-sm">Anyone with the link can vote.</p>
+		<p class="text-muted-foreground text-sm">{m.share.text}</p>
 	</div>
 
 	<div class="flex gap-2">
-		<Input value={pollUrl} readonly aria-label="Poll link" class="font-mono text-sm" />
+		<Input value={pollUrl} readonly aria-label={m.share.link} class="font-mono text-sm" />
 		<Button variant="outline" onclick={copyLink} class="shrink-0">
 			<Copy aria-hidden="true" />
-			Copy
+			{m.share.copy}
 		</Button>
 	</div>
 

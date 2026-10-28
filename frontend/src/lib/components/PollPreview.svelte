@@ -1,22 +1,23 @@
 <script lang="ts">
+	import { getI18n } from '$lib/i18n';
 	import { getPercentage } from '$lib/utils';
 	import Card from './Card.svelte';
 	import OptionResult from './OptionResult.svelte';
 
-	const options = [
-		{ text: 'The pizza place around the corner', votes: 12 },
-		{ text: 'Tacos', votes: 9 },
-		{ text: 'Sushi', votes: 5 },
-		{ text: "Whatever, I'm not picky", votes: 2 }
-	];
+	const { m } = getI18n();
+
+	const votes = [12, 9, 5, 2];
+	const options = m.preview.options.map((text, index) => ({ text, votes: votes[index] }));
 
 	const totalVotes = options.reduce((sum, option) => sum + option.votes, 0);
 </script>
 
-<Card class="p-0 text-left" aria-label="Example of a poll">
+<Card class="p-0 text-start" aria-label={m.preview.label}>
 	<div class="border-b p-5">
-		<p class="text-muted-foreground text-xs font-medium tracking-wide uppercase">Example poll</p>
-		<p class="mt-1 text-lg font-semibold">Where should we go for lunch on Friday?</p>
+		<p class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+			{m.preview.badge}
+		</p>
+		<p class="mt-1 text-lg font-semibold">{m.preview.question}</p>
 	</div>
 
 	<div class="space-y-4 p-5">
@@ -36,6 +37,6 @@
 			></span>
 			<span class="bg-primary relative inline-flex size-2 rounded-full"></span>
 		</span>
-		{totalVotes} votes · results update live
+		{m.preview.footer(totalVotes)}
 	</div>
 </Card>

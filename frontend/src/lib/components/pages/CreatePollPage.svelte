@@ -5,6 +5,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import * as Form from '$lib/components/ui/form';
+	import { getI18n } from '$lib/i18n';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { localStore } from '$lib/localStore.svelte';
@@ -20,23 +21,16 @@
 	const MIN_OPTIONS = 2;
 	const MAX_OPTIONS = 10;
 
+	const { m } = getI18n();
+	const errors = m.createPoll.errors;
+
 	const schema = z.object({
-		title: z
-			.string()
-			.trim()
-			.min(1, 'A question is required')
-			.max(200, 'Keep it under 200 characters'),
-		description: z.string().trim().max(500, 'Keep it under 500 characters').optional(),
+		title: z.string().trim().min(1, errors.questionRequired).max(200, errors.tooLong(200)),
+		description: z.string().trim().max(500, errors.tooLong(500)).optional(),
 		options: z
-			.array(
-				z
-					.string()
-					.trim()
-					.min(1, 'An option cannot be empty')
-					.max(100, 'Keep it under 100 characters')
-			)
-			.min(MIN_OPTIONS, `Add at least ${MIN_OPTIONS} options`)
-			.max(MAX_OPTIONS, `You can add up to ${MAX_OPTIONS} options`),
+			.array(z.string().trim().min(1, errors.optionRequired).max(100, errors.tooLong(100)))
+			.min(MIN_OPTIONS, errors.tooFewOptions(MIN_OPTIONS))
+			.max(MAX_OPTIONS, errors.tooManyOptions(MAX_OPTIONS)),
 		allowMultipleOptions: z.boolean().default(false)
 	});
 
@@ -58,7 +52,7 @@
 				if (!result.valid) return;
 
 				if (!turnstileToken) {
-					toast.error('Please complete the verification first.');
+					toast.error(m.createPoll.verificationRequired);
 					cancel();
 					return;
 				}
@@ -77,7 +71,7 @@
 					await goto(`/polls/${createdPoll.id}`);
 				} catch (error) {
 					console.error(error);
-					toast.error('The poll could not be created. Please try again.');
+					toast.error(m.createPoll.failed);
 					resetTurnstile?.();
 					cancel();
 				}
@@ -101,19 +95,16 @@
 </script>
 
 <svelte:head>
-	<title>Create a poll · Pollmodoro</title>
-	<meta
-		name="description"
-		content="Write a question, add a few options, and get a link to share."
-	/>
+	<title>{m.common.createAPoll} · Pollmodoro</title>
+	<meta name="description" content={m.createPoll.metaDescription} />
 </svelte:head>
 
 <div class="mx-auto max-w-2xl py-6 sm:py-10" in:fade={{ duration: 400 }}>
 	<div class="mb-6">
-		<h1 id="create-poll-heading" class="text-3xl font-bold tracking-tight">Create a poll</h1>
-		<p class="text-muted-foreground mt-1">
-			Ask a question, add some options, and you'll get a link to share.
-		</p>
+		<h1 id="create-poll-heading" class="text-3xl font-bold tracking-tight">
+			{m.common.createAPoll}
+		</h1>
+		<p class="text-muted-foreground mt-1">{m.createPoll.intro}</p>
 	</div>
 
 	<Card>
@@ -121,11 +112,11 @@
 			<Form.Field {form} name="title">
 				<Form.Control>
 					{#snippet children({ props })}
-						<Form.Label>Question</Form.Label>
+						<Form.Label>{m.createPoll.question}</Form.Label>
 						<Input
 							{...props}
 							bind:value={$formData.title}
-							placeholder="What do you want to ask?"
+							placeholder={m.createPoll.questionPlaceholder}
 							maxlength={200}
 							autocomplete="off"
 							class="h-10"
@@ -139,13 +130,13 @@
 				<Form.Control>
 					{#snippet children({ props })}
 						<Form.Label>
-							Description
-							<span class="text-muted-foreground font-normal">(optional)</span>
+							{m.createPoll.description}
+							<span class="text-muted-foreground font-normal">{m.createPoll.optional}</span>
 						</Form.Label>
 						<Textarea
 							{...props}
 							bind:value={$formData.description}
-							placeholder="Add some context, if it helps."
+							placeholder={m.createPoll.descriptionPlaceholder}
 							rows={3}
 							maxlength={500}
 						/>
@@ -156,9 +147,9 @@
 
 			<Form.Fieldset {form} name="options" class="space-y-3">
 				<div>
-					<Form.Legend>Options</Form.Legend>
+					<Form.Legend>{m.createPoll.options}</Form.Legend>
 					<p class="text-muted-foreground mt-1 text-sm">
-						Between {MIN_OPTIONS} and {MAX_OPTIONS} options for people to choose from.
+						{m.createPoll.optionsHint(MIN_OPTIONS, MAX_OPTIONS)}
 					</p>
 				</div>
 
@@ -170,10 +161,10 @@
 									<Input
 										{...props}
 										bind:value={$formData.options[index]}
-										placeholder="Option {index + 1}"
+										placeholder={m.createPoll.optionPlaceholder(index + 1)}
 										maxlength={100}
 										autocomplete="off"
-										aria-label="Option {index + 1}"
+										aria-label={m.createPoll.optionPlaceholder(index + 1)}
 										class="h-10"
 									/>
 									{#if $formData.options.length > MIN_OPTIONS}
@@ -183,7 +174,7 @@
 											size="icon-lg"
 											class="text-muted-foreground hover:text-destructive size-10 shrink-0"
 											onclick={() => removeOption(index)}
-											aria-label="Remove option {index + 1}"
+											aria-label={m.createPoll.removeOption(index + 1)}
 										>
 											<Trash2 aria-hidden="true" />
 										</Button>
@@ -200,7 +191,7 @@
 				{#if $formData.options.length < MAX_OPTIONS}
 					<Button type="button" variant="outline" size="sm" onclick={addOption}>
 						<Plus aria-hidden="true" />
-						Add option
+						{m.createPoll.addOption}
 					</Button>
 				{/if}
 			</Form.Fieldset>
@@ -215,9 +206,9 @@
 						<Checkbox {...props} bind:checked={$formData.allowMultipleOptions} class="mt-0.5" />
 						<div class="space-y-1">
 							<Form.Label class="cursor-pointer after:absolute after:inset-0">
-								Allow multiple selections
+								{m.createPoll.allowMultiple}
 							</Form.Label>
-							<Form.Description>Voters can pick more than one option.</Form.Description>
+							<Form.Description>{m.createPoll.allowMultipleDescription}</Form.Description>
 						</div>
 					{/snippet}
 				</Form.Control>
@@ -226,7 +217,7 @@
 			<TurnstileWidget bind:token={turnstileToken} bind:reset={resetTurnstile} />
 
 			<Form.Button pushable disabled={$submitting} class="h-11 w-full text-base" size="lg">
-				{$submitting ? 'Creating poll…' : 'Create poll'}
+				{$submitting ? m.createPoll.submitting : m.common.createPoll}
 			</Form.Button>
 		</form>
 	</Card>

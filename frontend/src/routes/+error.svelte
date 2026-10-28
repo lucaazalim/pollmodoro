@@ -2,25 +2,21 @@
 	import { page } from '$app/state';
 	import CreatePollButton from '$lib/components/CreatePollButton.svelte';
 	import { Button } from '$lib/components/ui/button';
+	import { getI18n } from '$lib/i18n';
 	import House from '@lucide/svelte/icons/house';
 	import RefreshCw from '@lucide/svelte/icons/refresh-cw';
 	import { fade } from 'svelte/transition';
 
+	const { m } = getI18n();
+
 	const content = $derived.by(() => {
 		if (page.status === 404) {
-			return {
-				title: 'Page not found',
-				message: "There's nothing at this address. Check the link, or head back home.",
-				canRetry: false
-			};
+			return { title: m.error.notFoundTitle, message: m.error.notFoundText, canRetry: false };
 		}
 
 		return {
-			title: 'Something went wrong',
-			message:
-				page.status >= 500
-					? 'The server hit an error. Please try again in a moment.'
-					: 'An unexpected error happened. Please try again.',
+			title: m.error.title,
+			message: page.status >= 500 ? m.error.serverText : m.error.text,
 			canRetry: true
 		};
 	});
@@ -45,15 +41,15 @@
 	<div class="mt-8 flex flex-row justify-center gap-3">
 		<Button href="/" variant="outline" pushable>
 			<House aria-hidden="true" />
-			Go home
+			{m.common.goHome}
 		</Button>
 		{#if content.canRetry}
 			<Button onclick={() => window.location.reload()} pushable>
 				<RefreshCw aria-hidden="true" />
-				Try again
+				{m.error.tryAgain}
 			</Button>
 		{:else}
-			<CreatePollButton label="Create a poll" />
+			<CreatePollButton label={m.common.createAPoll} />
 		{/if}
 	</div>
 </div>

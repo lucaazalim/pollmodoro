@@ -15,7 +15,8 @@
 	bind:ref
 	data-slot="progress"
 	class={cn(
-		'bg-muted relative flex h-1 w-full items-center overflow-x-hidden rounded-full',
+		// Mirrored in right-to-left languages so the bar fills from the right.
+		'bg-muted relative flex h-1 w-full items-center overflow-x-hidden rounded-full rtl:-scale-x-100',
 		className
 	)}
 	{value}

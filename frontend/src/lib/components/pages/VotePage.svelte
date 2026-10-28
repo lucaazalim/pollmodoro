@@ -7,8 +7,9 @@
 	import TurnstileWidget from '$lib/components/TurnstileWidget.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Progress } from '$lib/components/ui/progress';
+	import { getI18n } from '$lib/i18n';
 	import { trpc, type PollWithResults } from '$lib/trpc';
-	import { cn, formatDate, getPercentage } from '$lib/utils';
+	import { cn, getPercentage } from '$lib/utils';
 	import { subscribeToPollResults } from '$lib/websocket';
 	import Calendar from '@lucide/svelte/icons/calendar';
 	import ListChecks from '@lucide/svelte/icons/list-checks';
@@ -22,6 +23,8 @@
 	};
 
 	let { poll: loadedPoll }: Props = $props();
+
+	const { m, formatNumber, formatPercent, formatDate } = getI18n();
 
 	// Starts from the server-loaded poll and is overridden by live results.
 	let poll = $derived(loadedPoll);
@@ -63,10 +66,10 @@
 
 			selectedOption = undefined;
 			selectedOptions = [];
-			toast.success('Your vote is in.');
+			toast.success(m.vote.success);
 		} catch (error) {
 			console.error(error);
-			toast.error('Your vote could not be submitted. Please try again.');
+			toast.error(m.vote.failed);
 		} finally {
 			// A Turnstile token is single-use, so always get a fresh one.
 			resetTurnstile?.();
@@ -76,17 +79,11 @@
 </script>
 
 <svelte:head>
-	<title>{poll ? `${poll.title} · Pollmodoro` : 'Poll not found · Pollmodoro'}</title>
+	<title>{poll ? poll.title : m.pollNotFound.title} · Pollmodoro</title>
 	{#if poll}
-		<meta
-			name="description"
-			content={poll.description || `Vote on "${poll.title}" on Pollmodoro.`}
-		/>
+		<meta name="description" content={poll.description || m.vote.metaDescription(poll.title)} />
 		<meta property="og:title" content={poll.title} />
-		<meta
-			property="og:description"
-			content={poll.description || 'Vote on this poll and see the results live.'}
-		/>
+		<meta property="og:description" content={poll.description || m.vote.ogDescription} />
 	{/if}
 </svelte:head>
 
@@ -105,19 +102,19 @@
 					{/if}
 					<dl class="text-muted-foreground flex flex-wrap gap-x-5 gap-y-1 pt-2 text-sm">
 						<div class="flex items-center gap-1.5">
-							<dt class="sr-only">Votes</dt>
+							<dt class="sr-only">{m.vote.votesLabel}</dt>
 							<Users class="size-4" aria-hidden="true" />
-							<dd>{poll.totalVotes} {poll.totalVotes === 1 ? 'vote' : 'votes'}</dd>
+							<dd>{m.common.votes(poll.totalVotes)}</dd>
 						</div>
 						<div class="flex items-center gap-1.5">
-							<dt class="sr-only">Type</dt>
+							<dt class="sr-only">{m.vote.typeLabel}</dt>
 							<ListChecks class="size-4" aria-hidden="true" />
-							<dd>{poll.allowMultipleOptions ? 'Multiple choice' : 'Single choice'}</dd>
+							<dd>{poll.allowMultipleOptions ? m.vote.multipleChoice : m.vote.singleChoice}</dd>
 						</div>
 						<div class="flex items-center gap-1.5">
-							<dt class="sr-only">Created</dt>
+							<dt class="sr-only">{m.vote.createdLabel}</dt>
 							<Calendar class="size-4" aria-hidden="true" />
-							<dd>Created {formatDate(poll.createdAt)}</dd>
+							<dd>{m.vote.createdOn(formatDate(poll.createdAt))}</dd>
 						</div>
 					</dl>
 				</header>
@@ -131,7 +128,7 @@
 				>
 					<fieldset class="space-y-3">
 						<legend class="sr-only">
-							{poll.allowMultipleOptions ? 'Pick one or more options' : 'Pick one option'}
+							{poll.allowMultipleOptions ? m.vote.pickOneOrMore : m.vote.pickOne}
 						</legend>
 
 						{#each poll.options as option (option.id)}
@@ -166,15 +163,17 @@
 										{/if}
 										<span class="leading-snug font-medium wrap-anywhere">{option.optionText}</span>
 									</div>
-									<span class="shrink-0 text-right tabular-nums">
-										<span class="block text-lg leading-tight font-bold">{option.votesCount}</span>
-										<span class="text-muted-foreground text-sm">{percentage}%</span>
+									<span class="shrink-0 text-end tabular-nums">
+										<span class="block text-lg leading-tight font-bold">
+											{formatNumber(option.votesCount)}
+										</span>
+										<span class="text-muted-foreground text-sm">{formatPercent(percentage)}</span>
 									</span>
 								</div>
 								<Progress
 									value={percentage}
 									class="h-2"
-									aria-label="{percentage}% of votes for {option.optionText}"
+									aria-label={m.vote.optionVotes(formatPercent(percentage), option.optionText)}
 								/>
 							</label>
 						{/each}
@@ -192,19 +191,19 @@
 						>
 							{#if submitting}
 								<LoaderCircle class="animate-spin" aria-hidden="true" />
-								Submitting…
+								{m.vote.submitting}
 							{:else if poll.allowMultipleOptions && selectedIds.length > 1}
-								Vote for {selectedIds.length} options
+								{m.vote.submitMany(selectedIds.length)}
 							{:else}
-								Vote
+								{m.vote.submit}
 							{/if}
 						</Button>
 
 						<p class="sr-only" aria-live="polite">
 							{#if submitting}
-								Submitting your vote.
+								{m.vote.submittingStatus}
 							{:else if !canVote}
-								Pick an option and complete the verification to vote.
+								{m.vote.cannotVoteStatus}
 							{/if}
 						</p>
 					</div>

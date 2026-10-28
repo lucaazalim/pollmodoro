@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { cn } from '$lib/utils';
+	import { getI18n } from '$lib/i18n';
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 
-	let { class: className, label = 'Loading' }: { class?: string; label?: string } = $props();
+	const { m } = getI18n();
+
+	let { class: className, label = m.common.loading }: { class?: string; label?: string } = $props();
 </script>
 
 <div role="status" class={cn('flex items-center justify-center', className)}>

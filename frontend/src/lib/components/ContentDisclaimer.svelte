@@ -1,3 +1,9 @@
+<script lang="ts">
+	import { getI18n } from '$lib/i18n';
+
+	const { m } = getI18n();
+</script>
+
 <p class="text-muted-foreground text-center text-xs">
-	This poll was written by a Pollmodoro user. Its content is not created or endorsed by Pollmodoro.
+	{m.vote.disclaimer}
 </p>

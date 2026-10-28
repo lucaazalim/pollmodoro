@@ -3,10 +3,16 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import Header from '$lib/components/Header.svelte';
 	import { Toaster } from '$lib/components/ui/sonner';
+	import { createI18n, setI18n } from '$lib/i18n';
 	import { ModeWatcher } from 'mode-watcher';
+	import { untrack } from 'svelte';
 	import '../app.css';
 
-	let { children } = $props();
+	let { children, data } = $props();
+
+	// The language only changes with a full page reload, so the first value is the only one.
+	const i18n = untrack(() => createI18n(data.locale, data.messages));
+	setI18n(i18n);
 </script>
 
 <svelte:head>
@@ -23,9 +29,9 @@
 
 <a
 	href="#main-content"
-	class="focus:bg-primary focus:text-primary-foreground sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:px-4 focus:py-2"
+	class="focus:bg-primary focus:text-primary-foreground sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:rounded-md focus:px-4 focus:py-2"
 >
-	Skip to main content
+	{i18n.m.layout.skipToContent}
 </a>
 
 <div class="flex min-h-svh flex-col">
@@ -36,4 +42,4 @@
 	<Footer />
 </div>
 
-<Toaster richColors position="bottom-center" />
+<Toaster richColors position="bottom-center" dir={i18n.dir} />

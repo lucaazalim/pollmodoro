@@ -82,6 +82,27 @@ Pollmodoro leverages CloudFlare's edge computing infrastructure to deliver a fas
 
 ---
 
+### Languages
+
+The interface is translated into the 10 languages most used on the internet: English, Chinese, Spanish, Arabic, Portuguese, Indonesian, French, Japanese, Russian and German. Each visitor gets one picked from where they are:
+
+1. A language they chose in the header's language menu (stored in the `locale` cookie).
+2. The language of the country they're in, from Cloudflare's IP geolocation (`request.cf.country`). In countries with more than one supported language (Switzerland, Belgium, Canada...), the browser's `Accept-Language` decides between them.
+3. The browser's `Accept-Language`, when the country is unknown or speaks none of these languages.
+4. English.
+
+The pieces live in `frontend/src/lib/i18n/`:
+
+- `locales.ts`: the supported languages, with their native names and text direction.
+- `detect.ts`: the country-to-language table and the detection above. It runs in `hooks.server.ts`, which also sets `<html lang dir>`.
+- `messages/en.ts`: the English messages, which every other `messages/<locale>.ts` is type-checked against. Only the visitor's language is downloaded.
+
+Components read messages with `const { m } = getI18n()`.
+
+To add a language, add it to `LOCALES`, create `messages/<locale>.ts` from `en.ts`, and add it to the countries that speak it in `detect.ts`. Poll content is written by users and isn't translated.
+
+---
+
 ## How to run locally
 
 ### Prerequisites
@@ -133,12 +154,12 @@ Pollmodoro leverages CloudFlare's edge computing infrastructure to deliver a fas
 
 Both `backend/` and `frontend/` have the same set of scripts:
 
-| Script           | What it does                                                    |
-| ---------------- | --------------------------------------------------------------- |
+| Script           | What it does                                                                   |
+| ---------------- | ------------------------------------------------------------------------------ |
 | `npm run check`  | Type-checks the project (`tsc` in the backend, `svelte-check` in the frontend) |
-| `npm run lint`   | Runs Prettier in check mode and Oxlint                          |
-| `npm run format` | Formats the code with Prettier                                  |
-| `npm run deploy` | Builds and deploys the Worker to production with Wrangler       |
+| `npm run lint`   | Runs Prettier in check mode and Oxlint                                         |
+| `npm run format` | Formats the code with Prettier                                                 |
+| `npm run deploy` | Builds and deploys the Worker to production with Wrangler                      |
 
 Every push to `main` deploys automatically: [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) type-checks and lints both projects, then deploys the backend and then the frontend. It needs a `CLOUDFLARE_API_TOKEN` repository secret with permission to edit Workers.
 

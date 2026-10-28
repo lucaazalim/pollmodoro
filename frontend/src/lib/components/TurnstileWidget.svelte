@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { env } from '$env/dynamic/public';
+	import { getI18n } from '$lib/i18n';
 	import { loadTurnstile } from '$lib/turnstile';
 	import { mode } from 'mode-watcher';
 
@@ -9,6 +10,8 @@
 	};
 
 	let { token = $bindable(null), reset = $bindable() }: Props = $props();
+
+	const { locale, m } = getI18n();
 
 	let container: HTMLDivElement;
 	let widgetId: string | undefined;
@@ -25,6 +28,8 @@
 				widgetId = turnstile.render(container, {
 					sitekey: env.PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA',
 					theme,
+					// Turnstile falls back to English for languages it doesn't support.
+					language: locale,
 					size: 'flexible',
 					callback: (newToken) => {
 						token = newToken;
@@ -61,9 +66,4 @@
 	};
 </script>
 
-<div
-	bind:this={container}
-	class="min-h-[65px]"
-	role="group"
-	aria-label="Verification that you are human"
-></div>
+<div bind:this={container} class="min-h-[65px]" role="group" aria-label={m.vote.verification}></div>

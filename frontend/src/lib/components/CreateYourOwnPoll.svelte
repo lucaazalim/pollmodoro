@@ -1,14 +1,15 @@
 <script lang="ts">
+	import { getI18n } from '$lib/i18n';
 	import Card from './Card.svelte';
 	import CreatePollButton from './CreatePollButton.svelte';
+
+	const { m } = getI18n();
 </script>
 
 <Card class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 	<div class="space-y-1">
-		<h2 class="text-lg font-semibold">Have a question of your own?</h2>
-		<p class="text-muted-foreground text-sm">
-			Polls are free and take about a minute to set up. No account needed.
-		</p>
+		<h2 class="text-lg font-semibold">{m.createYourOwn.title}</h2>
+		<p class="text-muted-foreground text-sm">{m.createYourOwn.text}</p>
 	</div>
-	<CreatePollButton label="Create a poll" class="shrink-0" />
+	<CreatePollButton label={m.common.createAPoll} class="shrink-0" />
 </Card>

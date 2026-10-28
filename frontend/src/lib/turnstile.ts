@@ -5,6 +5,7 @@ export type Turnstile = {
 		options: {
 			sitekey: string;
 			theme?: 'light' | 'dark' | 'auto';
+			language?: string;
 			size?: 'normal' | 'compact' | 'flexible';
 			callback: (token: string) => void;
 			'expired-callback'?: () => void;
