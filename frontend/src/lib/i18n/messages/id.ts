@@ -157,6 +157,10 @@ const messages: Messages = {
 		title: 'Polling tidak ditemukan',
 		text: 'Polling ini tidak ada, atau tautannya salah. Periksa kembali alamatnya, atau buat polling baru.'
 	},
+	mascot: {
+		title: 'Maskot',
+		poke: 'Colek maskotnya'
+	},
 	yourPolls: {
 		intro:
 			'Polling yang dibuat di browser ini. Daftarnya disimpan secara lokal sehingga tidak muncul di perangkat lain, dan menghapus data browser akan menghapusnya (pollingnya sendiri tetap online).',

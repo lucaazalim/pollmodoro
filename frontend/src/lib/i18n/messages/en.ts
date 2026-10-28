@@ -174,6 +174,10 @@ const messages = {
 		title: 'Poll not found',
 		text: "This poll doesn't exist, or the link is wrong. Double-check the address, or create a new poll."
 	},
+	mascot: {
+		title: 'Mascot',
+		poke: 'Poke the mascot'
+	},
 	yourPolls: {
 		intro:
 			"Polls you've created in this browser. The list is saved locally, so it won't show up on other devices, and clearing your browser data removes it (the polls themselves stay online).",

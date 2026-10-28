@@ -183,6 +183,10 @@ const messages: Messages = {
 		title: 'Sondage introuvable',
 		text: 'Ce sondage n’existe pas, ou le lien est incorrect. Vérifiez l’adresse ou créez un nouveau sondage.'
 	},
+	mascot: {
+		title: 'Mascotte',
+		poke: 'Chatouiller la mascotte'
+	},
 	yourPolls: {
 		intro:
 			'Sondages que vous avez créés dans ce navigateur. La liste est enregistrée localement : elle n’apparaît donc pas sur d’autres appareils, et elle disparaît si vous effacez les données du navigateur (les sondages eux-mêmes restent en ligne).',

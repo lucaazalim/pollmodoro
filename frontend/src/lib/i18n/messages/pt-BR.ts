@@ -185,6 +185,10 @@ const messages: Messages = {
 		title: 'Enquete não encontrada',
 		text: 'Esta enquete não existe ou o link está errado. Confira o endereço ou crie uma nova enquete.'
 	},
+	mascot: {
+		title: 'Mascote',
+		poke: 'Cutucar o mascote'
+	},
 	yourPolls: {
 		intro:
 			'Enquetes que você criou neste navegador. A lista fica salva localmente, então não aparece em outros dispositivos, e limpar os dados do navegador a remove (as enquetes em si continuam online).',

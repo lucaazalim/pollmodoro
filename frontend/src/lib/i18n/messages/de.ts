@@ -172,6 +172,10 @@ const messages: Messages = {
 		title: 'Umfrage nicht gefunden',
 		text: 'Diese Umfrage existiert nicht, oder der Link ist falsch. Prüfe die Adresse oder erstelle eine neue Umfrage.'
 	},
+	mascot: {
+		title: 'Maskottchen',
+		poke: 'Maskottchen anstupsen'
+	},
 	yourPolls: {
 		intro:
 			'Umfragen, die du in diesem Browser erstellt hast. Die Liste wird lokal gespeichert und erscheint daher nicht auf anderen Geräten. Wenn du die Browserdaten löschst, wird sie entfernt (die Umfragen selbst bleiben online).',

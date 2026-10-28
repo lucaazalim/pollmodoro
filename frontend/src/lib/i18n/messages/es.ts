@@ -184,6 +184,10 @@ const messages: Messages = {
 		title: 'Encuesta no encontrada',
 		text: 'Esta encuesta no existe o el enlace es incorrecto. Revisa la dirección o crea una nueva encuesta.'
 	},
+	mascot: {
+		title: 'Mascota',
+		poke: 'Darle un toque a la mascota'
+	},
 	yourPolls: {
 		intro:
 			'Encuestas que has creado en este navegador. La lista se guarda localmente, así que no aparece en otros dispositivos, y si borras los datos del navegador desaparece (las encuestas siguen en línea).',

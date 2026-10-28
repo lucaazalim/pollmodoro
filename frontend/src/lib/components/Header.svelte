@@ -2,10 +2,13 @@
 	import { getI18n } from '$lib/i18n';
 	import CreatePollButton from './CreatePollButton.svelte';
 	import LanguageSwitcher from './LanguageSwitcher.svelte';
+	import Mascot from './Mascot.svelte';
 	import ThemeSwitcherButton from './ThemeSwitcherButton.svelte';
 	import YourPollsButton from './YourPollsButton.svelte';
 
 	const { m } = getI18n();
+
+	let mascot = $state<Mascot>();
 </script>
 
 <header
@@ -15,14 +18,17 @@
 		class="mx-auto flex h-16 max-w-5xl items-center justify-between gap-4 px-5"
 		aria-label={m.header.mainNavigation}
 	>
-		<a href="/" class="group flex items-center gap-2" aria-label={m.header.home}>
-			<img
-				src="/pollmodoro.png"
-				alt=""
-				width="32"
-				height="32"
-				class="size-8 shrink-0 transition-transform duration-300 ease-out group-hover:-rotate-12"
-			/>
+		<a
+			href="/"
+			class="flex items-center gap-2"
+			aria-label={m.header.home}
+			onpointerenter={() => mascot?.setHovered(true)}
+			onpointerleave={() => mascot?.setHovered(false)}
+			onfocus={(event) => mascot?.setHovered(event.currentTarget.matches(':focus-visible'))}
+			onblur={() => mascot?.setHovered(false)}
+			onclick={() => mascot?.cheer()}
+		>
+			<Mascot bind:this={mascot} class="size-10" />
 			<span class="font-serif text-xl font-bold max-sm:hidden">Pollmodoro</span>
 		</a>
 
