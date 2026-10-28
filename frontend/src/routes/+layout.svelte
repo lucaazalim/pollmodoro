@@ -4,6 +4,7 @@
 	import Header from '$lib/components/Header.svelte';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { createI18n, setI18n } from '$lib/i18n';
+	import serifFont from '@fontsource-variable/merriweather/files/merriweather-latin-wght-normal.woff2?url';
 	import { ModeWatcher } from 'mode-watcher';
 	import { untrack } from 'svelte';
 	import '../app.css';
@@ -16,6 +17,9 @@
 </script>
 
 <svelte:head>
+	<!-- The home page's heading is set in this font, so it's fetched early instead of after the
+	     stylesheet, to avoid the heading swapping fonts once it's already on screen. -->
+	<link rel="preload" href={serifFont} as="font" type="font/woff2" crossorigin="anonymous" />
 	{#if !dev}
 		<script
 			defer

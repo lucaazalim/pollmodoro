@@ -2,7 +2,7 @@
 	import Card from '$lib/components/Card.svelte';
 	import ContentDisclaimer from '$lib/components/ContentDisclaimer.svelte';
 	import CreateYourOwnPoll from '$lib/components/CreateYourOwnPoll.svelte';
-	import PollNotFound from '$lib/components/PollNotFound.svelte';
+	import Seo from '$lib/components/Seo.svelte';
 	import ShareThisPoll from '$lib/components/ShareThisPoll.svelte';
 	import TurnstileWidget from '$lib/components/TurnstileWidget.svelte';
 	import { Button } from '$lib/components/ui/button';
@@ -19,7 +19,7 @@
 	import { fade } from 'svelte/transition';
 
 	type Props = {
-		poll: PollWithResults | null;
+		poll: PollWithResults;
 	};
 
 	let { poll: loadedPoll }: Props = $props();
@@ -36,7 +36,6 @@
 	let submitting = $state(false);
 
 	const selectedIds = $derived.by(() => {
-		if (!poll) return [];
 		if (poll.allowMultipleOptions) return selectedOptions;
 		return selectedOption === undefined ? [] : [selectedOption];
 	});
@@ -44,16 +43,13 @@
 	const canVote = $derived(selectedIds.length > 0 && turnstileToken !== null && !submitting);
 
 	$effect(() => {
-		const pollId = loadedPoll?.id;
-		if (!pollId) return;
-
-		return subscribeToPollResults(pollId, (results) => {
+		return subscribeToPollResults(loadedPoll.id, (results) => {
 			poll = results;
 		});
 	});
 
 	async function vote() {
-		if (!poll || !turnstileToken || selectedIds.length === 0) return;
+		if (!turnstileToken || selectedIds.length === 0) return;
 
 		submitting = true;
 
@@ -78,141 +74,137 @@
 	}
 </script>
 
-<svelte:head>
-	<title>{poll ? poll.title : m.pollNotFound.title} · Pollmodoro</title>
-	{#if poll}
-		<meta name="description" content={poll.description || m.vote.metaDescription(poll.title)} />
-		<meta property="og:title" content={poll.title} />
-		<meta property="og:description" content={poll.description || m.vote.ogDescription} />
-	{/if}
-</svelte:head>
+<!-- Polls are shared by link and written by anyone, without review, so they're kept out of search
+     results. Their titles still show in link previews. -->
+<Seo
+	title={poll.title}
+	description={poll.description || m.vote.metaDescription(poll.title)}
+	socialDescription={poll.description || m.vote.ogDescription}
+	index={false}
+/>
 
 <div class="mx-auto max-w-3xl py-6 sm:py-10">
-	{#if !poll}
-		<PollNotFound />
-	{:else}
-		<div class="space-y-5" in:fade={{ duration: 300 }}>
-			<Card class="p-0">
-				<header class="space-y-2 border-b p-6">
-					<h1 class="text-2xl font-bold tracking-tight text-pretty wrap-break-word">
-						{poll.title}
-					</h1>
-					{#if poll.description}
-						<p class="text-muted-foreground text-pretty wrap-break-word">{poll.description}</p>
-					{/if}
-					<dl class="text-muted-foreground flex flex-wrap gap-x-5 gap-y-1 pt-2 text-sm">
-						<div class="flex items-center gap-1.5">
-							<dt class="sr-only">{m.vote.votesLabel}</dt>
-							<Users class="size-4" aria-hidden="true" />
-							<dd>{m.common.votes(poll.totalVotes)}</dd>
-						</div>
-						<div class="flex items-center gap-1.5">
-							<dt class="sr-only">{m.vote.typeLabel}</dt>
-							<ListChecks class="size-4" aria-hidden="true" />
-							<dd>{poll.allowMultipleOptions ? m.vote.multipleChoice : m.vote.singleChoice}</dd>
-						</div>
-						<div class="flex items-center gap-1.5">
-							<dt class="sr-only">{m.vote.createdLabel}</dt>
-							<Calendar class="size-4" aria-hidden="true" />
-							<dd>{m.vote.createdOn(formatDate(poll.createdAt))}</dd>
-						</div>
-					</dl>
-				</header>
-
-				<form
-					class="space-y-6 p-6"
-					onsubmit={(event) => {
-						event.preventDefault();
-						vote();
-					}}
-				>
-					<fieldset class="space-y-3">
-						<legend class="sr-only">
-							{poll.allowMultipleOptions ? m.vote.pickOneOrMore : m.vote.pickOne}
-						</legend>
-
-						{#each poll.options as option (option.id)}
-							{@const percentage = getPercentage(option.votesCount, poll.totalVotes)}
-							{@const selected = selectedIds.includes(option.id)}
-
-							<label
-								class={cn(
-									'hover:bg-muted/50 has-focus-visible:ring-ring/50 block cursor-pointer space-y-3 rounded-lg border p-4 transition-colors has-focus-visible:ring-3',
-									selected && 'border-primary bg-primary/5 hover:bg-primary/10'
-								)}
-							>
-								<div class="flex items-start justify-between gap-4">
-									<div class="flex min-w-0 items-start gap-3">
-										{#if poll.allowMultipleOptions}
-											<input
-												type="checkbox"
-												value={option.id}
-												bind:group={selectedOptions}
-												class="accent-primary mt-1 size-4 shrink-0"
-												disabled={submitting}
-											/>
-										{:else}
-											<input
-												type="radio"
-												name="option"
-												value={option.id}
-												bind:group={selectedOption}
-												class="accent-primary mt-1 size-4 shrink-0"
-												disabled={submitting}
-											/>
-										{/if}
-										<span class="leading-snug font-medium wrap-anywhere">{option.optionText}</span>
-									</div>
-									<span class="shrink-0 text-end tabular-nums">
-										<span class="block text-lg leading-tight font-bold">
-											{formatNumber(option.votesCount)}
-										</span>
-										<span class="text-muted-foreground text-sm">{formatPercent(percentage)}</span>
-									</span>
-								</div>
-								<Progress
-									value={percentage}
-									class="h-2"
-									aria-label={m.vote.optionVotes(formatPercent(percentage), option.optionText)}
-								/>
-							</label>
-						{/each}
-					</fieldset>
-
-					<div class="space-y-3 border-t pt-6">
-						<TurnstileWidget bind:token={turnstileToken} bind:reset={resetTurnstile} />
-
-						<Button
-							type="submit"
-							pushable
-							disabled={!canVote}
-							class="h-11 w-full text-base"
-							size="lg"
-						>
-							{#if submitting}
-								<LoaderCircle class="animate-spin" aria-hidden="true" />
-								{m.vote.submitting}
-							{:else if poll.allowMultipleOptions && selectedIds.length > 1}
-								{m.vote.submitMany(selectedIds.length)}
-							{:else}
-								{m.vote.submit}
-							{/if}
-						</Button>
-
-						<p class="sr-only" aria-live="polite">
-							{#if submitting}
-								{m.vote.submittingStatus}
-							{:else if !canVote}
-								{m.vote.cannotVoteStatus}
-							{/if}
-						</p>
+	<div class="space-y-5" in:fade={{ duration: 300 }}>
+		<Card class="p-0">
+			<header class="space-y-2 border-b p-6">
+				<h1 class="text-2xl font-bold tracking-tight text-pretty wrap-break-word">
+					{poll.title}
+				</h1>
+				{#if poll.description}
+					<p class="text-muted-foreground text-pretty wrap-break-word">{poll.description}</p>
+				{/if}
+				<dl class="text-muted-foreground flex flex-wrap gap-x-5 gap-y-1 pt-2 text-sm">
+					<div class="flex items-center gap-1.5">
+						<dt class="sr-only">{m.vote.votesLabel}</dt>
+						<Users class="size-4" aria-hidden="true" />
+						<dd>{m.common.votes(poll.totalVotes)}</dd>
 					</div>
-				</form>
-			</Card>
+					<div class="flex items-center gap-1.5">
+						<dt class="sr-only">{m.vote.typeLabel}</dt>
+						<ListChecks class="size-4" aria-hidden="true" />
+						<dd>{poll.allowMultipleOptions ? m.vote.multipleChoice : m.vote.singleChoice}</dd>
+					</div>
+					<div class="flex items-center gap-1.5">
+						<dt class="sr-only">{m.vote.createdLabel}</dt>
+						<Calendar class="size-4" aria-hidden="true" />
+						<dd>{m.vote.createdOn(formatDate(poll.createdAt))}</dd>
+					</div>
+				</dl>
+			</header>
 
-			<ShareThisPoll pollTitle={poll.title} />
-			<CreateYourOwnPoll />
-			<ContentDisclaimer />
-		</div>
-	{/if}
+			<form
+				class="space-y-6 p-6"
+				onsubmit={(event) => {
+					event.preventDefault();
+					vote();
+				}}
+			>
+				<fieldset class="space-y-3">
+					<legend class="sr-only">
+						{poll.allowMultipleOptions ? m.vote.pickOneOrMore : m.vote.pickOne}
+					</legend>
+
+					{#each poll.options as option (option.id)}
+						{@const percentage = getPercentage(option.votesCount, poll.totalVotes)}
+						{@const selected = selectedIds.includes(option.id)}
+
+						<label
+							class={cn(
+								'hover:bg-muted/50 has-focus-visible:ring-ring/50 block cursor-pointer space-y-3 rounded-lg border p-4 transition-colors has-focus-visible:ring-3',
+								selected && 'border-primary bg-primary/5 hover:bg-primary/10'
+							)}
+						>
+							<div class="flex items-start justify-between gap-4">
+								<div class="flex min-w-0 items-start gap-3">
+									{#if poll.allowMultipleOptions}
+										<input
+											type="checkbox"
+											value={option.id}
+											bind:group={selectedOptions}
+											class="accent-primary mt-1 size-4 shrink-0"
+											disabled={submitting}
+										/>
+									{:else}
+										<input
+											type="radio"
+											name="option"
+											value={option.id}
+											bind:group={selectedOption}
+											class="accent-primary mt-1 size-4 shrink-0"
+											disabled={submitting}
+										/>
+									{/if}
+									<span class="leading-snug font-medium wrap-anywhere">{option.optionText}</span>
+								</div>
+								<span class="shrink-0 text-end tabular-nums">
+									<span class="block text-lg leading-tight font-bold">
+										{formatNumber(option.votesCount)}
+									</span>
+									<span class="text-muted-foreground text-sm">{formatPercent(percentage)}</span>
+								</span>
+							</div>
+							<Progress
+								value={percentage}
+								class="h-2"
+								aria-label={m.vote.optionVotes(formatPercent(percentage), option.optionText)}
+							/>
+						</label>
+					{/each}
+				</fieldset>
+
+				<div class="space-y-3 border-t pt-6">
+					<TurnstileWidget bind:token={turnstileToken} bind:reset={resetTurnstile} />
+
+					<Button
+						type="submit"
+						pushable
+						disabled={!canVote}
+						class="h-11 w-full text-base"
+						size="lg"
+					>
+						{#if submitting}
+							<LoaderCircle class="animate-spin" aria-hidden="true" />
+							{m.vote.submitting}
+						{:else if poll.allowMultipleOptions && selectedIds.length > 1}
+							{m.vote.submitMany(selectedIds.length)}
+						{:else}
+							{m.vote.submit}
+						{/if}
+					</Button>
+
+					<p class="sr-only" aria-live="polite">
+						{#if submitting}
+							{m.vote.submittingStatus}
+						{:else if !canVote}
+							{m.vote.cannotVoteStatus}
+						{/if}
+					</p>
+				</div>
+			</form>
+		</Card>
+
+		<ShareThisPoll pollTitle={poll.title} />
+		<CreateYourOwnPoll />
+		<ContentDisclaimer />
+	</div>
 </div>

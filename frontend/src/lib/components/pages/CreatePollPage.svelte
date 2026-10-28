@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import Card from '$lib/components/Card.svelte';
+	import Seo from '$lib/components/Seo.svelte';
 	import TurnstileWidget from '$lib/components/TurnstileWidget.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Checkbox } from '$lib/components/ui/checkbox';
@@ -94,10 +95,7 @@
 	}
 </script>
 
-<svelte:head>
-	<title>{m.common.createAPoll} · Pollmodoro</title>
-	<meta name="description" content={m.createPoll.metaDescription} />
-</svelte:head>
+<Seo title={m.common.createAPoll} description={m.createPoll.metaDescription} translated />
 
 <div class="mx-auto max-w-2xl py-6 sm:py-10" in:fade={{ duration: 400 }}>
 	<div class="mb-6">

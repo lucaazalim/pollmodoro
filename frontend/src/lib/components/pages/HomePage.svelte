@@ -1,8 +1,10 @@
 <script lang="ts">
 	import CreatePollButton from '$lib/components/CreatePollButton.svelte';
 	import PollPreview from '$lib/components/PollPreview.svelte';
+	import Seo from '$lib/components/Seo.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { getI18n } from '$lib/i18n';
+	import { SITE_NAME, SITE_URL, SOCIAL_IMAGE } from '$lib/seo';
 	import Code from '@lucide/svelte/icons/code';
 	import ListChecks from '@lucide/svelte/icons/list-checks';
 	import ShieldCheck from '@lucide/svelte/icons/shield-check';
@@ -11,7 +13,7 @@
 	import Wallet from '@lucide/svelte/icons/wallet';
 	import { fade } from 'svelte/transition';
 
-	const { m } = getI18n();
+	const { locale, m } = getI18n();
 
 	const steps = [m.home.steps.write, m.home.steps.share, m.home.steps.watch];
 
@@ -25,13 +27,42 @@
 	];
 </script>
 
-<svelte:head>
-	<title>{m.home.metaTitle}</title>
-	<meta name="description" content={m.home.metaDescription} />
-	<meta property="og:title" content={m.home.metaTitle} />
-	<meta property="og:description" content={m.home.ogDescription} />
-	<meta property="og:image" content="https://pollmodoro.com/pollmodoro.png" />
-</svelte:head>
+<Seo
+	title={m.home.metaTitle}
+	titleHasSiteName
+	description={m.home.metaDescription}
+	socialDescription={m.home.ogDescription}
+	translated
+	jsonLd={{
+		'@context': 'https://schema.org',
+		'@graph': [
+			{
+				'@type': 'WebSite',
+				'@id': `${SITE_URL}/#website`,
+				url: `${SITE_URL}/`,
+				name: SITE_NAME,
+				description: m.home.metaDescription,
+				inLanguage: locale
+			},
+			{
+				'@type': 'WebApplication',
+				'@id': `${SITE_URL}/#app`,
+				url: `${SITE_URL}/`,
+				name: SITE_NAME,
+				description: m.home.heroText,
+				image: SOCIAL_IMAGE.url,
+				applicationCategory: 'UtilitiesApplication',
+				operatingSystem: 'Any',
+				browserRequirements: 'Requires JavaScript',
+				isAccessibleForFree: true,
+				inLanguage: locale,
+				featureList: details.map((detail) => detail.title),
+				creator: { '@type': 'Person', name: 'Luca Azalim', url: 'https://azal.im' },
+				isPartOf: { '@id': `${SITE_URL}/#website` }
+			}
+		]
+	}}
+/>
 
 <div class="mx-auto max-w-5xl px-5" in:fade={{ duration: 400 }}>
 	<!-- Hero -->

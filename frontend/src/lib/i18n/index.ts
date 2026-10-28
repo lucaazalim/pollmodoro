@@ -1,11 +1,12 @@
 import { getContext, setContext } from 'svelte';
-import { getDirection, LOCALE_COOKIE, type Locale } from './locales';
+import { getDirection, LOCALE_COOKIE, LOCALE_PARAM, type Locale } from './locales';
 import type { Messages } from './messages/en';
 
 export {
 	BASE_LOCALE,
 	getDirection,
 	isLocale,
+	LOCALE_PARAM,
 	LOCALES,
 	type Locale,
 	type LocaleInfo
@@ -48,9 +49,20 @@ export function getI18n(): I18n {
 	return getContext<I18n>(key);
 }
 
-/** Remembers a language the visitor picked and reloads the page in it. */
+/**
+ * Remembers a language the visitor picked and reloads the page in it. A `?lang=` in the
+ * address would win over the choice, so it's dropped.
+ */
 export function switchLocale(locale: Locale) {
 	const oneYear = 60 * 60 * 24 * 365;
 	document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=${oneYear}; samesite=lax`;
-	window.location.reload();
+
+	const url = new URL(window.location.href);
+
+	if (url.searchParams.has(LOCALE_PARAM)) {
+		url.searchParams.delete(LOCALE_PARAM);
+		window.location.replace(url);
+	} else {
+		window.location.reload();
+	}
 }

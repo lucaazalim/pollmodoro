@@ -250,6 +250,8 @@ export function parseAcceptLanguage(header: string | null): Locale[] {
 }
 
 type DetectionInput = {
+	/** A language set by the page address, from the `?lang=` query parameter. */
+	param?: string | null;
 	/** A language the visitor picked by hand, from the locale cookie. */
 	cookie?: string;
 	/** The visitor's country, from Cloudflare's IP geolocation. */
@@ -260,15 +262,17 @@ type DetectionInput = {
 /**
  * Picks the language for a request:
  *
- * 1. A language the visitor picked by hand.
- * 2. The language of the country the visitor is in. When the country has more
+ * 1. A language set by the page address (`?lang=`).
+ * 2. A language the visitor picked by hand.
+ * 3. The language of the country the visitor is in. When the country has more
  *    than one (Switzerland, Belgium, Canada...), the browser's language
  *    settings choose between them.
- * 3. The browser's language settings, when the country is unknown or speaks none
+ * 4. The browser's language settings, when the country is unknown or speaks none
  *    of the supported languages.
- * 4. English.
+ * 5. English.
  */
-export function detectLocale({ cookie, country, acceptLanguage }: DetectionInput): Locale {
+export function detectLocale({ param, cookie, country, acceptLanguage }: DetectionInput): Locale {
+	if (isLocale(param)) return param;
 	if (isLocale(cookie)) return cookie;
 
 	const preferred = parseAcceptLanguage(acceptLanguage);

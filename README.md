@@ -86,10 +86,11 @@ Pollmodoro leverages CloudFlare's edge computing infrastructure to deliver a fas
 
 The interface is translated into the 10 languages most used on the internet: English, Chinese, Spanish, Arabic, Portuguese, Indonesian, French, Japanese, Russian and German. Each visitor gets one picked from where they are:
 
-1. A language they chose in the header's language menu (stored in the `locale` cookie).
-2. The language of the country they're in, from Cloudflare's IP geolocation (`request.cf.country`). In countries with more than one supported language (Switzerland, Belgium, Canada...), the browser's `Accept-Language` decides between them.
-3. The browser's `Accept-Language`, when the country is unknown or speaks none of these languages.
-4. English.
+1. A language set in the address with `?lang=`, such as `/?lang=pt-BR`. This gives every translation its own URL for search engines: the home and create pages link to all of them with `hreflang`, and the sitemap lists them.
+2. A language they chose in the header's language menu (stored in the `locale` cookie).
+3. The language of the country they're in, from Cloudflare's IP geolocation (`request.cf.country`). In countries with more than one supported language (Switzerland, Belgium, Canada...), the browser's `Accept-Language` decides between them.
+4. The browser's `Accept-Language`, when the country is unknown or speaks none of these languages.
+5. English.
 
 The pieces live in `frontend/src/lib/i18n/`:
 
@@ -98,6 +99,8 @@ The pieces live in `frontend/src/lib/i18n/`:
 - `messages/en.ts`: the English messages, which every other `messages/<locale>.ts` is type-checked against. Only the visitor's language is downloaded.
 
 Components read messages with `const { m } = getI18n()`.
+
+Page titles, descriptions, canonical URLs, social previews and structured data come from `frontend/src/lib/components/Seo.svelte`, with the production address and shared values in `frontend/src/lib/seo.ts`. `robots.txt` and `sitemap.xml` are generated from the same file at build time. Polls are `noindex`: they're shared by link and written by anyone, so they stay out of search results but still get link previews.
 
 To add a language, add it to `LOCALES`, create `messages/<locale>.ts` from `en.ts`, and add it to the countries that speak it in `detect.ts`. Poll content is written by users and isn't translated.
 

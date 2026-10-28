@@ -8,8 +8,9 @@ export const load: PageServerLoad = async ({ params }) => {
 		return { poll: await trpc.getPoll.query({ id: params.id }) };
 	} catch (e) {
 		if (e instanceof TRPCClientError) {
+			// A real 404, so search engines drop the address instead of indexing an empty page.
 			if (e.data?.code === 'NOT_FOUND') {
-				return { poll: null };
+				error(404, { message: 'Poll not found' });
 			}
 
 			error(e.data?.httpStatus ?? 500, { message: e.message });

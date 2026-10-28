@@ -3,6 +3,7 @@
 	import CreatePollButton from '$lib/components/CreatePollButton.svelte';
 	import LoadSpinner from '$lib/components/LoadSpinner.svelte';
 	import OptionResult from '$lib/components/OptionResult.svelte';
+	import Seo from '$lib/components/Seo.svelte';
 	import { getI18n } from '$lib/i18n';
 	import { localStore } from '$lib/localStore.svelte';
 	import { trpc, type PollWithResults } from '$lib/trpc';
@@ -28,10 +29,8 @@
 	});
 </script>
 
-<svelte:head>
-	<title>{m.header.yourPolls} · Pollmodoro</title>
-	<meta name="robots" content="noindex" />
-</svelte:head>
+<!-- The list lives in this browser, so there's nothing here for a search engine to show. -->
+<Seo title={m.header.yourPolls} index={false} />
 
 <div class="mx-auto max-w-5xl py-6 sm:py-10" in:fade={{ duration: 400 }}>
 	<div class="mb-6">

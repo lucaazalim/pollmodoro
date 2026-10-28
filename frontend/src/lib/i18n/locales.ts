@@ -25,6 +25,12 @@ export const BASE_LOCALE: Locale = 'en';
 /** The cookie that remembers a language the visitor picked by hand. */
 export const LOCALE_COOKIE = 'locale';
 
+/**
+ * The query parameter that pins a page to one language, such as `/?lang=pt-BR`. It gives
+ * every translation its own address, so search engines can find and index each of them.
+ */
+export const LOCALE_PARAM = 'lang';
+
 export function isLocale(value: unknown): value is Locale {
 	return typeof value === 'string' && Object.hasOwn(LOCALES, value);
 }
