@@ -12,7 +12,6 @@
 	onclick={toggleMode}
 	variant="outline"
 	size="icon"
-	class="cursor-pointer"
 	aria-label={m.header.toggleTheme}
 	pushable
 >

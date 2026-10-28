@@ -22,14 +22,7 @@
 <DropdownMenu.Root>
 	<DropdownMenu.Trigger>
 		{#snippet child({ props })}
-			<Button
-				{...props}
-				variant="outline"
-				size="icon"
-				class="cursor-pointer"
-				aria-label={m.header.language}
-				pushable
-			>
+			<Button {...props} variant="outline" size="icon" aria-label={m.header.language} pushable>
 				<Languages aria-hidden="true" />
 			</Button>
 		{/snippet}
