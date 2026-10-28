@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy --minify",
+    "deploy": "wrangler deploy --env production --minify",
     "check": "tsc --noEmit",
     "lint": "prettier --check . && oxlint",
     "format": "prettier --write .",

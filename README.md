@@ -138,6 +138,8 @@ Both `backend/` and `frontend/` have the same set of scripts:
 | `npm run check`  | Type-checks the project (`tsc` in the backend, `svelte-check` in the frontend) |
 | `npm run lint`   | Runs Prettier in check mode and Oxlint                          |
 | `npm run format` | Formats the code with Prettier                                  |
-| `npm run deploy` | Builds and deploys the Worker with Wrangler                     |
+| `npm run deploy` | Builds and deploys the Worker to production with Wrangler       |
+
+Every push to `main` deploys automatically: [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) type-checks and lints both projects, then deploys the backend and then the frontend. It needs a `CLOUDFLARE_API_TOKEN` repository secret with permission to edit Workers.
 
 The backend type-checks with TypeScript 7 (the native compiler). The frontend stays on TypeScript 6 for now because `svelte-check` and SvelteKit don't support TypeScript 7 yet.

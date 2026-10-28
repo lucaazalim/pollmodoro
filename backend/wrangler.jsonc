@@ -39,6 +39,9 @@
   },
   "env": {
     "production": {
+      // Without this, Wrangler deploys `--env production` to a separate
+      // "poll-backend-production" Worker with its own, empty Durable Objects.
+      "name": "poll-backend",
       "vars": {
         "FRONTEND_URL": "https://pollmodoro.com",
       },

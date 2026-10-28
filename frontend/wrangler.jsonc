@@ -32,6 +32,9 @@
 	},
 	"env": {
 		"production": {
+			// Without this, Wrangler deploys `--env production` to a separate
+			// "poll-frontend-production" Worker.
+			"name": "poll-frontend",
 			"vars": {
 				"PUBLIC_TRPC_URL": "https://api.pollmodoro.com/trpc",
 				"PUBLIC_WEBSOCKET_URL": "wss://api.pollmodoro.com/websocket",

@@ -1,0 +1,53 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Never run two deploys at once, and never cancel one halfway through.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Check and deploy
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: 3922754d1a173504f7b9d37bfec89449
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      # The frontend type-checks against the backend's tRPC router, so both
+      # projects need their dependencies before either is checked.
+      - name: Install dependencies
+        run: |
+          npm ci --prefix backend
+          npm ci --prefix frontend
+
+      - name: Check backend
+        working-directory: backend
+        run: npm run check && npm run lint
+
+      - name: Check frontend
+        working-directory: frontend
+        run: npm run check && npm run lint
+
+      # Backend first, so the frontend never calls an API older than itself.
+      - name: Deploy backend
+        working-directory: backend
+        run: npm run deploy
+
+      - name: Deploy frontend
+        working-directory: frontend
+        run: npm run deploy
