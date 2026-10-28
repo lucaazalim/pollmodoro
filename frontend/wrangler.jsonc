@@ -15,16 +15,6 @@
 	"observability": {
 		"enabled": true
 	},
-	"routes": [
-		{
-			"pattern": "pollmodoro.com",
-			"custom_domain": true
-		},
-		{
-			"pattern": "www.pollmodoro.com",
-			"custom_domain": true
-		}
-	],
 	"vars": {
 		"PUBLIC_TRPC_URL": "http://localhost:8787/trpc",
 		"PUBLIC_WEBSOCKET_URL": "ws://localhost:8787/websocket",
@@ -35,6 +25,16 @@
 			// Without this, Wrangler deploys `--env production` to a separate
 			// "poll-frontend-production" Worker.
 			"name": "poll-frontend",
+			"routes": [
+				{
+					"pattern": "pollmodoro.com",
+					"custom_domain": true
+				},
+				{
+					"pattern": "www.pollmodoro.com",
+					"custom_domain": true
+				}
+			],
 			"vars": {
 				"PUBLIC_TRPC_URL": "https://api.pollmodoro.com/trpc",
 				"PUBLIC_WEBSOCKET_URL": "wss://api.pollmodoro.com/websocket",
